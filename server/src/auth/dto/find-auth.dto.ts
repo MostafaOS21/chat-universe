@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
 
 export class FindAuthDto {
   @ApiProperty({
@@ -8,6 +8,7 @@ export class FindAuthDto {
     type: String,
     example: 'email@test.com',
   })
+  @IsNotEmpty()
   @IsEmail()
   email: string;
 
@@ -17,6 +18,7 @@ export class FindAuthDto {
     type: String,
     example: 'Password@1234',
   })
+  @IsNotEmpty()
   @IsStrongPassword()
   password: string;
 }

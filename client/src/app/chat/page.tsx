@@ -1,17 +1,16 @@
 import React from "react";
-import { redirect } from "next/navigation";
 import ProfileBar from "./components/ProfileBar";
 import ChatConversation from "./components/ChatConversation";
 import { Separator } from "@/components/ui/separator";
-import SearchUser from "./components/SearchUser";
+import ConversationsList from "./components/ConversationsList";
 
 export default async function ChatPage() {
   return (
     <>
       {/* Avatar and chats */}
       <aside className="py-5 relative">
-        {/* <ProfileBar user={user} /> */}
-        <SearchUser />
+        <ProfileBar />
+        <ConversationsList />
       </aside>
 
       <Separator orientation="vertical" />

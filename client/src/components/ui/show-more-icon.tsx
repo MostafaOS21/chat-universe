@@ -1,8 +1,7 @@
 import { Button } from "./button";
 
 export const ShowMoreIcon = () => {
-  const size = 8;
-  const style = `w-[${size}px] h-[${size}px] scale-[0.36] rounded-full bg-white`;
+  const style = `w-[10px] h-[10px] scale-[0.32] rounded-full bg-white`;
 
   return (
     <Button

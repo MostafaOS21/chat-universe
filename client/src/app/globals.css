@@ -74,6 +74,20 @@
   section {
     @apply py-5 px-5 md:px-8;
   }
+
+  /* Scroll bar */
+  ::-webkit-scrollbar {
+    @apply w-[1px];
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply rounded-md;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+  }
 }
 
 @layer components {

@@ -5,6 +5,8 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import * as morgan from 'morgan';
+import * as session from 'express-session';
+import * as passport from 'passport';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +24,32 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
 
+  // CORS setup
+  app.enableCors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  });
+
+  // Validation setup
+  app.useGlobalPipes(new ValidationPipe());
+
+  // Cookie parser setup
+  app.use(cookieParser());
+
+  // Session setup
+  app.use(
+    session({
+      secret: `${process.env.COOKIE_SECRET}`,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        maxAge: isNaN(+process.env.JWT_COOKIE_EXPIRE)
+          ? 604800000
+          : +process.env.JWT_COOKIE_EXPIRE,
+      },
+    }),
+  );
+
   // Helmet setup
   app.use(
     helmet({
@@ -33,18 +61,9 @@ async function bootstrap() {
   // Morgan setup
   app.use(morgan('dev'));
 
-  // Validation setup
-  app.useGlobalPipes(new ValidationPipe());
-
-  // Cookie parser setup
-  app.use(cookieParser());
-
-  // CORS setup
-  app.enableCors({
-    allowedHeaders: ['content-type'],
-    origin: process.env.CLIENT_URL,
-    credentials: true,
-  });
+  // Passport setup
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   await app.listen(8000);
 }

@@ -28,7 +28,7 @@ export default function SearchUser() {
           <Search size={18} /> Search
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-[450px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="mb-4">Searching with username</DialogTitle>
 
@@ -36,12 +36,13 @@ export default function SearchUser() {
             onChange={(e) => {
               setSearch(e.target.value);
             }}
+            placeholder="Search with username"
+            className="mb-3"
           >
             <Search size={18} />
           </Input>
         </DialogHeader>
-
-        <UsersList searchValue={debouncedSearch} />
+        <UsersList search={debouncedSearch} />
       </DialogContent>
     </Dialog>
   );

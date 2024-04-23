@@ -64,7 +64,7 @@ export default function SignUpPage() {
         duration: 3000,
       });
 
-      router.push("/chat");
+      router.push("/auth/log-in");
     } catch (error) {
       toast({
         description: ApiError.generate(error).message,
@@ -124,18 +124,22 @@ export default function SignUpPage() {
               "Sign up"
             )}
           </Button>
-          <div className="grid grid-cols-2 gap-4">
+        </form>
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <form action={process.env.NEXT_PUBLIC_GOOGLE_CALLBACK}>
             <Button
               variant={"secondary"}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full"
               disabled={isPending}
             >
               <ImageIcon src="/assets/icons/google.svg" size={25} />
               Google
             </Button>
+          </form>
+          <form action="">
             <Button
               variant={"secondary"}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full"
               disabled={isPending}
             >
               <ImageIcon
@@ -150,8 +154,8 @@ export default function SignUpPage() {
               />
               Github
             </Button>
-          </div>
-        </form>
+          </form>
+        </div>
       </CardContent>
       <CardFooter>
         <p className="text-sm">

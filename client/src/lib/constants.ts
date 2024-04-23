@@ -4,3 +4,9 @@ export const PASSWORD_PATTERN_HTML = {
   title:
     "Password must contain at least: 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.",
 };
+
+// Auth Routes
+export const AUTH_ROUTES = ["/auth/log-in", "/auth/sign-up"];
+
+// Protected Routes
+export const PROTECTED_ROUTES = ["/chat"];

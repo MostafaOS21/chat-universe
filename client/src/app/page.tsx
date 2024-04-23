@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { MainHomeButton } from "@/components/ui/main-home-button";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import Image from "next/image";
 import Link from "next/link";
@@ -47,9 +48,7 @@ export default async function Home() {
             <h1 className="gradient-background">Start Your Chat Now!</h1>
           </div>
 
-          <Button asChild size={"lg"}>
-            <Link href={"/auth/sign-up"}>Create Your Account Now!</Link>
-          </Button>
+          <MainHomeButton />
         </section>
 
         <div className="absolute animate-[rotate_55s_infinite_linear] -z-[1]">

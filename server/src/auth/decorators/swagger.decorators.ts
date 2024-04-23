@@ -1,5 +1,10 @@
 import { HttpCode, HttpStatus, applyDecorators } from '@nestjs/common';
-import { ApiOkResponse, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiHeader,
+  ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 // create decorators for swagger
 export const CreateApiDecorator = () => {
@@ -26,6 +31,26 @@ export const FindUsersApiDecorator = () => {
     ApiResponse({ status: 200, description: 'Users found successfully' }),
     ApiResponse({ status: 400, description: 'Bad Request' }),
     ApiResponse({ status: 500, description: 'Internal server error' }),
+    ApiQuery({ name: 'page', required: false, description: 'Page number' }),
+    ApiQuery({
+      name: 'limit',
+      required: false,
+      description: 'Number of users per page',
+    }),
+    HttpCode(HttpStatus.OK),
+  );
+};
+
+export const RefreshApiDecorator = () => {
+  return applyDecorators(
+    ApiResponse({ status: 200, description: 'Token refreshed successfully' }),
+    ApiResponse({ status: 400, description: 'Bad request' }),
+    ApiResponse({ status: 500, description: 'Internal server error' }),
+    ApiHeader({
+      name: 'authorization',
+      description: 'Bearer token',
+      required: true,
+    }),
     HttpCode(HttpStatus.OK),
   );
 };

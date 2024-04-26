@@ -12,10 +12,16 @@ import * as bcrypt from 'bcryptjs';
 import { CreateOAuthDto } from './dto/create-oauth.dto';
 import { generateUsername } from './utils/generateUsername';
 import { Request, Response } from 'express';
+import { userRequest } from 'types';
+import { FriendsRequests } from 'src/friends-requests/entities/friends-requests.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(FriendsRequests.name)
+    private readonly friendsRequestsModel: Model<FriendsRequests>,
+  ) {}
 
   async create(createAuthDto: CreateAuthDto) {
     if (createAuthDto.password !== createAuthDto.confirmPassword) {
@@ -63,38 +69,83 @@ export class AuthService {
     };
   }
 
-  async search(username: string, page: number = 1, limit: number = 8) {
+  async search(
+    req: userRequest,
+    username: string,
+    page: number = 1,
+    limit: number = 5,
+  ) {
+    const { user } = req;
     const formattedUsername = username.toLocaleLowerCase().trim();
     const skip = (page - 1) * limit;
+    const searchingUser = await this.userModel.findById(user._id);
+
+    if (!searchingUser) {
+      throw new BadRequestException('User not found');
+    }
 
     const foundUsers = await this.userModel
       .find({
-        username: { $regex: formattedUsername, $options: 'i' },
+        _id: { $ne: searchingUser._id },
+        $or: [
+          { username: { $regex: formattedUsername, $options: 'i' } },
+          { name: { $regex: formattedUsername, $options: 'i' } },
+        ],
       })
       .select('name image username email')
       .skip(skip)
       .limit(limit);
 
-    console.log('page', page);
-    console.log(foundUsers);
+    const users = [];
+
+    for (const u of foundUsers) {
+      const friendRequest = await this.friendsRequestsModel
+        .findOne({
+          sender: user._id,
+          receiver: u._id.toString(),
+        })
+        .select('status');
+
+      users.push({
+        ...u.toObject(),
+        status: friendRequest?.status ? friendRequest?.status : null,
+      });
+    }
 
     return {
       message: 'Users found',
-      data: foundUsers,
+      data: users,
     };
   }
 
   async refresh(req: Request) {
     const user = req?.user;
 
-    if (!user) {
+    // @ts-ignore
+    if (!user?._id) {
+      throw new UnauthorizedException();
+    }
+
+    //@ts-ignore
+    const userExists = await this.userModel.findById(user._id);
+
+    if (!userExists) {
       throw new UnauthorizedException();
     }
 
     return {
       message: 'Token refreshed',
-      data: user,
+      data: userExists,
     };
+  }
+
+  async signOut(res: Response) {
+    res.clearCookie('authorization');
+    res.clearCookie('connect.sid');
+
+    return res.json({
+      message: 'Logged out successfully',
+    });
   }
 
   // OAuth Services

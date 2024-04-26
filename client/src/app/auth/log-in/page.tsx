@@ -1,5 +1,4 @@
 "use client";
-import { logIn } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,8 +11,12 @@ import {
 import { ImageIcon } from "@/components/ui/get-icon";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { api } from "@/features/api";
 import { ApiError } from "@/lib/api-error";
 import { PASSWORD_PATTERN_HTML } from "@/lib/constants";
+import { ApiResponse } from "@/lib/interfaces";
+import { IUser, logIn } from "@/lib/redux/features/authSlice";
+import { useAppDispatch } from "@/lib/redux/hooks";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,6 +26,7 @@ export default function LogInPage() {
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,13 +37,25 @@ export default function LogInPage() {
 
       const formData = new FormData(e.currentTarget);
 
+      const email = formData.get("email") as string;
       const password = formData.get("password") as string;
 
       if (!PASSWORD_PATTERN_HTML.pattern.test(password)) {
         throw new Error(PASSWORD_PATTERN_HTML.title);
       }
 
-      await logIn(formData);
+      const data = {
+        email: formData.get("email") as string,
+        password,
+      };
+
+      const res = await api.post("/auth/sign-in", data);
+      const resData: ApiResponse<IUser> = await res.data;
+
+      if (resData.data) {
+        console.log(resData.data);
+        dispatch(logIn({ user: resData.data }));
+      }
 
       toast({
         description: "Logged in successfully!",

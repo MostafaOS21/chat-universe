@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -20,17 +21,18 @@ import {
   FindUsersApiDecorator,
   RefreshApiDecorator,
   SignInApiDecorator,
+  SignOutApiDecorator,
 } from './decorators/swagger.decorators';
 import { FindAuthDto } from './dto/find-auth.dto';
-import { GoogleAuthGuard } from './gurads/google-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { Request, Response } from 'express';
 import { userRequest } from 'types';
 import * as jwt from 'jsonwebtoken';
-import { AuthGuard } from './gurads/auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
-@ApiTags('auth')
+@ApiTags('Auth')
 @UseInterceptors(AuthInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -39,11 +41,12 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @FindUsersApiDecorator()
   async search(
+    @Req() req: userRequest,
     @Param('username') username: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.authService.search(username, page, limit);
+    return this.authService.search(req, username, page, limit);
   }
 
   @Post('sign-up')
@@ -63,6 +66,13 @@ export class AuthController {
   @UseGuards(AuthGuard)
   async refresh(@Req() req: Request) {
     return this.authService.refresh(req);
+  }
+
+  @Delete('sign-out')
+  @SignOutApiDecorator()
+  @UseGuards(AuthGuard)
+  async signOut(@Res() res: Response) {
+    return this.authService.signOut(res);
   }
 
   /* ----- Google Strategy ----- */

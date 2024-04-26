@@ -1,0 +1,1 @@
+type friendsStatus = "accepted" | "pending";

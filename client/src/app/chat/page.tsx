@@ -8,7 +8,7 @@ export default async function ChatPage() {
   return (
     <>
       {/* Avatar and chats */}
-      <aside className="py-5 relative">
+      <aside className="py-5 relative overflow-hidden">
         <ProfileBar />
         <ConversationsList />
       </aside>

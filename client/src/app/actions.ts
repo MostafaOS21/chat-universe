@@ -1,40 +1,13 @@
 "use server";
 
-// Authentication actions
+import { cookies } from "next/headers";
 
-export const signUp = async (formData: FormData) => {
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
+export const getAuthorizationHeader = async () => {
+  const authorization = cookies().get("authorization");
 
-  const data = {
-    name,
-    email,
-    password,
-    confirmPassword,
-    op: "signUp",
-  };
+  if (!authorization) {
+    return null;
+  }
 
-  // await signIn("credentials", {
-  //   ...data,
-  //   redirectTo: "/chat",
-  // });
-};
-
-export const logIn = async (formData: FormData) => {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-
-  const data = {
-    email,
-    password,
-    op: "signIn",
-  };
-
-  // await signIn("credentials", data, { ...data, redirectTo: "/chat" });
-};
-
-export const signOutAction = async () => {
-  // await signOut();
+  return authorization;
 };

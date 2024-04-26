@@ -20,6 +20,8 @@ export class AuthGuard implements CanActivate {
 
     const token = request?.cookies['authorization']?.split(' ')[1];
 
+    console.log(token);
+
     if (!token) {
       throw new BadRequestException('no token found');
     }
@@ -31,7 +33,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('session expired');
     }
 
-    request.user = this.jwtService.decode(token)?._doc;
+    request.user = this.jwtService.decode(token);
 
     if (!request.user) throw new UnauthorizedException('user not found');
 

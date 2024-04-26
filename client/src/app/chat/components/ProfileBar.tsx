@@ -1,25 +1,18 @@
 "use client";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarUrl } from "@/lib/utils";
 import { OnlineBadge } from "@/components/ui/online-badge";
 import { ShowMoreIcon } from "@/components/ui/show-more-icon";
 import { Button } from "@/components/ui/button";
-import { Bolt, LogOut } from "lucide-react";
-import { use, useEffect, useRef, useState } from "react";
-import { signOutAction } from "@/app/actions";
+import { LogOut } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api-error";
-import { useAppSelector } from "@/lib/redux/hooks";
-import { selectUser } from "@/lib/redux/features/authSlice";
-
-// TODO: Implement ProfileBar component
-const profileExtraMenu = [
-  {
-    icon: Bolt,
-    label: "Settings",
-  },
-];
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { logOut, selectUser } from "@/lib/redux/features/authSlice";
+import { api } from "@/features/api";
+import { ApiResponse } from "@/lib/interfaces";
+import { PROFILE_ROUTES } from "@/lib/constants";
 
 export default function ProfileBar() {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -27,6 +20,8 @@ export default function ProfileBar() {
   const { toast } = useToast();
   const router = useRouter();
   const user = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
+  const pathname = usePathname();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -48,29 +43,45 @@ export default function ProfileBar() {
 
   // Handle is opened
   const handleIsOpened = () => {
-    // "translate-x-0" : "-translate-x-[450px]"
-    extraMenuRef.current?.classList?.toggle?.("-translate-x-[450px]");
-    extraMenuRef.current?.setAttribute?.("aria-expanded", "true");
+    const conversationList = document.getElementById("conversationList");
+
+    if (extraMenuRef.current?.getAttribute("aria-expanded") === "true") {
+      extraMenuRef.current?.classList?.add?.("-translate-x-[450px]");
+      extraMenuRef.current?.setAttribute?.("aria-expanded", "false");
+
+      conversationList?.classList?.remove?.("translate-x-[450px]");
+    } else {
+      extraMenuRef.current?.classList?.remove?.("-translate-x-[450px]");
+      extraMenuRef.current?.setAttribute?.("aria-expanded", "true");
+
+      conversationList?.classList?.add?.("translate-x-[450px]");
+    }
   };
 
   // Handle sign out
   const handleSignOut = async () => {
     try {
-      await signOutAction();
+      const res = await api.delete("/auth/sign-out");
+      const data: ApiResponse = await res.data;
 
       toast({
-        description: "Signed out successfully!",
+        description: data.message,
         duration: 2000,
       });
 
+      dispatch(logOut());
+
       router.push("/");
     } catch (error) {
+      console.log(error);
       toast({
         description: ApiError.generate(error).message,
         variant: "destructive",
       });
     }
   };
+
+  console.log(pathname);
 
   return (
     <>
@@ -99,12 +110,24 @@ export default function ProfileBar() {
         ref={extraMenuRef}
         aria-expanded={false}
       >
+        {PROFILE_ROUTES.map((route) => (
+          <li key={route.label}>
+            <Button
+              className="w-full flex justify-start gap-2 mb-2"
+              onClick={() => router.push(route.href)}
+              variant={"secondary"}
+            >
+              <route.icon size={20} /> {route.label}
+            </Button>
+          </li>
+        ))}
+
         <li>
           <Button
             className="w-full flex justify-start gap-2"
             onClick={handleSignOut}
           >
-            <LogOut /> Sign out
+            <LogOut size={20} /> Sign out
           </Button>
         </li>
       </menu>

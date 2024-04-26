@@ -51,7 +51,7 @@ export default async function Home() {
           <MainHomeButton />
         </section>
 
-        <div className="absolute animate-[rotate_55s_infinite_linear] -z-[1]">
+        <div className="absolute animate-[rotate_55s_infinite_linear] -z-[1] opacity-30">
           <Image
             src={"/assets/images/ccchaos.svg"}
             width={500}

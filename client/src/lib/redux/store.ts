@@ -1,11 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./features/authSlice";
+import { apiRedux } from "@/lib/redux/api/rtk-query-api";
+import { get } from "http";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       auth: authSlice.reducer,
+      [apiRedux.reducerPath]: apiRedux.reducer,
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(apiRedux.middleware),
   });
 };
 

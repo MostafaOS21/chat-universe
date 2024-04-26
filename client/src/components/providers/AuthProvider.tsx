@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import { useToast } from "../ui/use-toast";
 import { ApiError } from "@/lib/api-error";
 import { ApiResponse } from "@/lib/interfaces";
-import { IUser, logIn } from "@/lib/redux/features/authSlice";
+import { IUser, logIn, logOut } from "@/lib/redux/features/authSlice";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { Loader2 } from "lucide-react";
 
@@ -47,10 +47,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
         dispatch(logIn({ user }));
       } catch (error) {
-        toast({
-          description: ApiError.generate(error).message,
-          variant: "destructive",
-        });
+        const { message, status } = ApiError.generate(error);
+
+        dispatch(logOut());
+        if (status !== 400)
+          toast({
+            description: message,
+            variant: "destructive",
+          });
       } finally {
         hideOverlay();
       }

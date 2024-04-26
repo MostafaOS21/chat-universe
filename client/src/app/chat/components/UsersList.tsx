@@ -4,17 +4,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/features/api";
 import { ApiError } from "@/lib/api-error";
-import { ApiResponse } from "@/lib/interfaces";
-import { IUser, setUser } from "@/lib/redux/features/authSlice";
-import { getAvatarUrl } from "@/lib/utils";
+import { ApiResponse, IRequestFriend } from "@/lib/interfaces";
+import { getAvatarUrl, sliceString } from "@/lib/utils";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
-import {
-  useEffect,
-  useState,
-  useOptimistic,
-  useRef,
-  startTransition,
-} from "react";
+import { useEffect, useState, useOptimistic, useRef } from "react";
+import { UserPlus, UserRoundX, UserRoundCheck } from "lucide-react";
+import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 
 const SkeletonUser = () => {
   return (
@@ -31,19 +26,166 @@ const SkeletonUser = () => {
   );
 };
 
+const UserItem = ({
+  user,
+  setUsers,
+  setOptimisticUsers,
+}: {
+  user: IRequestFriend;
+  setUsers: React.Dispatch<React.SetStateAction<IRequestFriend[]>>;
+  setOptimisticUsers: React.Dispatch<React.SetStateAction<IRequestFriend[]>>;
+}) => {
+  const [isPending, setIsPending] = useState(false);
+  const { toast } = useToast();
+  const iconSize = 18;
+  const buttonStyles = "flex items-center gap-2";
+  let button;
+
+  // Add request
+  const addRequest = async (user: IRequestFriend) => {
+    try {
+      setIsPending(true);
+
+      const formattedUser: IRequestFriend = {
+        ...user,
+        status: "pending",
+      };
+
+      setOptimisticUsers((prev) => {
+        const index = prev.findIndex((u) => u._id === user._id);
+        const newUsers = [...prev];
+        newUsers[index] = formattedUser;
+        return newUsers;
+      });
+
+      const res = await api.post(`/friends-requests/send/${user._id}`);
+      const data: ApiResponse<IRequestFriend> = await res.data;
+
+      setUsers((prev) => {
+        const index = prev.findIndex((u) => u._id === user._id);
+        const newUsers = [...prev];
+        if (data.data) newUsers[index] = data.data;
+        return newUsers;
+      });
+
+      toast({
+        description: data.message,
+      });
+    } catch (error) {
+      toast({
+        description: ApiError.generate(error).message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const cancelRequest = async (user: IRequestFriend) => {
+    try {
+      setIsPending(true);
+      const res = await api.delete(`/friends-requests/cancel/${user._id}`);
+      const data: ApiResponse<IRequestFriend> = await res.data;
+
+      setUsers((prev) => {
+        const index = prev.findIndex((u) => u._id === user._id);
+        const newUsers = [...prev];
+        if (data.data) newUsers[index] = data.data;
+        return newUsers;
+      });
+
+      toast({
+        description: data.message,
+      });
+    } catch (error) {
+      toast({
+        description: ApiError.generate(error).message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  switch (user.status) {
+    case "pending":
+      button = (
+        <Button
+          className={buttonStyles}
+          variant={"secondary"}
+          onClick={() => cancelRequest(user)}
+          disabled={isPending}
+        >
+          <UserRoundX size={iconSize} /> Cancel
+        </Button>
+      );
+      break;
+
+    case "accepted":
+      button = (
+        <Button
+          className={buttonStyles}
+          variant={"outline"}
+          disabled={isPending}
+        >
+          <UserRoundCheck size={iconSize} /> Friends
+        </Button>
+      );
+      break;
+
+    default:
+      button = (
+        <Button
+          className={buttonStyles}
+          onClick={() => addRequest(user)}
+          disabled={isPending}
+        >
+          <UserPlus size={iconSize} /> Request
+        </Button>
+      );
+  }
+
+  return (
+    <div className={`flex items-center gap-3 mb-5 px-2`}>
+      <div>
+        <Avatar>
+          <AvatarImage
+            src={getAvatarUrl(user.image)}
+            alt={user.name}
+            className="w-[40px] h-[40px]"
+          />
+        </Avatar>
+      </div>
+      <div className="grid grid-cols-[2fr_1fr] flex-1">
+        <div>
+          <p>{sliceString(user.name)}</p>
+          <p className="text-sm text-gray-600">
+            @{sliceString(user.username, 15)}
+          </p>
+        </div>
+        {/* Friend's Button */}
+        {button}
+      </div>
+    </div>
+  );
+};
+
 export default function UsersList({ search }: { search: string }) {
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<IRequestFriend[]>([]);
   const [optimisticUsers, setOptimisticUsers] = useOptimistic(users);
-  const [page, setPage] = useState(1);
   const { toast } = useToast();
   const usersListRef = useRef<HTMLDivElement>(null);
+  const { page, setPage } = useInfiniteScroll({
+    refTarget: usersListRef,
+    currentPage: 1,
+  });
   const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await api.get(`/auth/search/${search}`);
-        const data: ApiResponse<IUser[]> = await res.data;
+        const data: ApiResponse<IRequestFriend[]> = await res.data;
 
         if (data.data) {
           setUsers(data.data);
@@ -61,13 +203,15 @@ export default function UsersList({ search }: { search: string }) {
     } else {
       setUsers([]);
     }
+
+    setPage(0);
   }, [search]);
 
   useEffect(() => {
     const fetchMoreUsers = async () => {
       try {
         const res = await api.get(`/auth/search/${search}?page=${page}`);
-        const data: ApiResponse<IUser[]> = await res.data;
+        const data: ApiResponse<IRequestFriend[]> = await res.data;
         const users = data?.data ? data?.data : [];
 
         if (!users.length) {
@@ -88,52 +232,16 @@ export default function UsersList({ search }: { search: string }) {
     }
   }, [page]);
 
-  useEffect(() => {
-    const handleScroll = (e: Event) => {
-      const target = e.target as HTMLDivElement;
-      const scrollHeight = target.scrollHeight;
-      const scrollTop = target.scrollTop;
-      const clientHeight = target.clientHeight;
-
-      if (scrollTop + clientHeight >= scrollHeight) {
-        setPage((prev) => prev + 1);
-      }
-    };
-    usersListRef.current?.addEventListener("scroll", handleScroll);
-
-    return () => {
-      usersListRef.current?.removeEventListener("scroll", handleScroll);
-      setUsers([]);
-    };
-  }, []);
-
   return (
     <div className="h-[300px] overflow-y-auto" ref={usersListRef}>
-      {optimisticUsers?.map((user) =>
-        user.username ? (
-          <div key={user._id} className="flex items-center gap-3 mb-5 px-2">
-            <div>
-              <Avatar>
-                <AvatarImage
-                  src={getAvatarUrl(user.image)}
-                  alt={user.name}
-                  className="w-[40px] h-[40px]"
-                />
-              </Avatar>
-            </div>
-            <div className="flex items-center flex-1">
-              <div className="flex-1">
-                <p>{user.name}</p>
-                <p className="text-sm text-gray-600">@{user.username}</p>
-              </div>
-              <Button>Request</Button>
-            </div>
-          </div>
-        ) : (
-          <SkeletonUser key={user._id} />
-        )
-      )}
-
+      {optimisticUsers?.map((user, i) => (
+        <UserItem
+          key={i}
+          user={user}
+          setUsers={setUsers}
+          setOptimisticUsers={setOptimisticUsers}
+        />
+      ))}
       {optimisticUsers?.length && hasMore ? <SkeletonUser /> : null}
     </div>
   );

@@ -1,7 +1,7 @@
 import { Button } from "./button";
 
 export const ShowMoreIcon = () => {
-  const style = `w-[10px] h-[10px] scale-[0.32] rounded-full bg-white`;
+  const style = `w-[10px] h-[10px] scale-[0.32] rounded-full dark:bg-white bg-black`;
 
   return (
     <Button

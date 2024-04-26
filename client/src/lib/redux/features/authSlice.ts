@@ -55,12 +55,14 @@ const authSlice = createSlice({
         createdAt: "",
         updatedAt: "",
       };
+
+      state.isAuth = false;
     },
     // Separate reducers for each action
-    setUser: (state, action) => {
-      state.user = action.payload;
+    updateUsername: (state, action) => {
+      state.user.username = action.payload;
     },
-    setToken: (state, action) => {},
+    // updateToken: (state, action) => {},
     setIsAuth: (state, action) => {
       state.isAuth = action.payload;
     },
@@ -71,6 +73,5 @@ export const selectAuth = (state: { auth: IAuth }) => state.auth;
 export const selectUser = (state: { auth: IAuth }) => state.auth.user;
 export const isAuthed = (state: { auth: IAuth }) => state.auth.isAuth;
 
-export const { logIn, logOut, setUser, setToken, setIsAuth } =
-  authSlice.actions;
+export const { logIn, logOut, setIsAuth, updateUsername } = authSlice.actions;
 export default authSlice;

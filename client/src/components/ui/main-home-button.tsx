@@ -12,9 +12,22 @@ export const MainHomeButton = () => {
     ? "Start Chatting Now!"
     : "Create Your Account Now!";
 
+  const logInButton = !isAuth && (
+    <div className="text-sm">
+      Or
+      <Button variant={"link"} asChild>
+        <Link href={"/auth/log-in"}>Log in to your account</Link>
+      </Button>
+    </div>
+  );
+
   return (
-    <Button asChild size={"lg"}>
-      <Link href={linkContent}>{buttonText}</Link>
-    </Button>
+    <div className="flex flex-col items-center">
+      <Button asChild size={"lg"}>
+        <Link href={linkContent}>{buttonText}</Link>
+      </Button>
+
+      {logInButton}
+    </div>
   );
 };

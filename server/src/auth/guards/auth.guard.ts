@@ -18,9 +18,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
 
-    const token = request?.cookies['authorization']?.split(' ')[1];
-
-    console.log(token);
+    const token = request?.cookies['Authorization']?.split(' ')[1];
 
     if (!token) {
       throw new BadRequestException('no token found');
@@ -35,7 +33,9 @@ export class AuthGuard implements CanActivate {
 
     request.user = this.jwtService.decode(token);
 
-    if (!request.user) throw new UnauthorizedException('user not found');
+    if (!request.user) {
+      throw new UnauthorizedException('user not found');
+    }
 
     return request;
   }

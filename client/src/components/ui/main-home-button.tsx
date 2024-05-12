@@ -1,18 +1,19 @@
-"use client";
 import Link from "next/link";
 import { Button } from "./button";
-import { useAppSelector } from "@/lib/redux/hooks";
-import { isAuthed } from "@/lib/redux/features/authSlice";
+import { auth } from "@/auth";
 
-export const MainHomeButton = () => {
-  const isAuth = useAppSelector(isAuthed);
+export const MainHomeButton = async () => {
+  const session = await auth();
+  const isAuthed = session?.user.id ? true : false;
 
-  const linkContent = isAuth ? "/chat" : "/auth/sign-up";
-  const buttonText = isAuth
+  // Create 10 seconds delay to show the loading spinner
+
+  const linkContent = isAuthed ? "/chat" : "/auth/sign-up";
+  const buttonText = isAuthed
     ? "Start Chatting Now!"
     : "Create Your Account Now!";
 
-  const logInButton = !isAuth && (
+  const logInButton = !isAuthed && (
     <div className="text-sm">
       Or
       <Button variant={"link"} asChild>

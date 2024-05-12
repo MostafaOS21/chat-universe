@@ -1,6 +1,4 @@
 "use client";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { OnlineBadge } from "@/components/ui/online-badge";
 import { ShowMoreIcon } from "@/components/ui/show-more-icon";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -8,19 +6,16 @@ import { useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePathname, useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api-error";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import { logOut, selectUser } from "@/lib/redux/features/authSlice";
 import { api } from "@/features/api";
 import { ApiResponse } from "@/lib/interfaces";
 import { PROFILE_ROUTES } from "@/lib/constants";
+import ProfileBarContent from "./ProfileBarContent";
 
 export default function ProfileBar() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const extraMenuRef = useRef<HTMLUListElement>(null);
   const { toast } = useToast();
   const router = useRouter();
-  const user = useAppSelector(selectUser);
-  const dispatch = useAppDispatch();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -43,6 +38,7 @@ export default function ProfileBar() {
 
   // Handle is opened
   const handleIsOpened = () => {
+    console.log("HEY");
     const conversationList = document.getElementById("conversationList");
 
     if (extraMenuRef.current?.getAttribute("aria-expanded") === "true") {
@@ -69,8 +65,7 @@ export default function ProfileBar() {
         duration: 2000,
       });
 
-      dispatch(logOut());
-
+      // TODO: Sign out user
       router.push("/");
     } catch (error) {
       console.log(error);
@@ -81,8 +76,6 @@ export default function ProfileBar() {
     }
   };
 
-  console.log(pathname);
-
   return (
     <>
       <Button
@@ -91,16 +84,7 @@ export default function ProfileBar() {
         ref={buttonRef}
         onClick={handleIsOpened}
       >
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage src={user.image} alt={user.name} />
-          </Avatar>
-
-          <div>
-            <h4>{user.name}</h4>
-            <OnlineBadge />
-          </div>
-        </div>
+        <ProfileBarContent />
 
         <ShowMoreIcon />
       </Button>

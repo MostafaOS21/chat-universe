@@ -8,12 +8,11 @@ import { api } from "@/features/api";
 import { ApiError } from "@/lib/api-error";
 import { PROFILE_ROUTES } from "@/lib/constants";
 import { ApiResponse } from "@/lib/interfaces";
-import { logOut, selectUser } from "@/lib/redux/features/authSlice";
+import { logout, selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React from "react";
 
 export default function Aside() {
   const dispatch = useAppDispatch();
@@ -33,7 +32,7 @@ export default function Aside() {
         duration: 2000,
       });
 
-      dispatch(logOut());
+      dispatch(logout());
 
       router.push("/");
     } catch (error) {

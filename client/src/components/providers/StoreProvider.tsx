@@ -3,7 +3,6 @@ import { ReactNode, useRef } from "react";
 import { Provider } from "react-redux";
 import { makeStore, AppStore } from "@/lib/redux/store";
 import AuthProvider from "./AuthProvider";
-import RoutesProtectProvider from "./RoutesProtectProvider";
 
 export default function StoreProvider({ children }: { children: ReactNode }) {
   const storeRef = useRef<AppStore | null>(null);
@@ -14,9 +13,7 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <Provider store={storeRef.current}>
-      <AuthProvider>
-        <RoutesProtectProvider>{children}</RoutesProtectProvider>
-      </AuthProvider>
+      <AuthProvider>{children}</AuthProvider>
     </Provider>
   );
 }

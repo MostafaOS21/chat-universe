@@ -19,6 +19,10 @@ async function bootstrap() {
     .setTitle('Chat Universe API')
     .setDescription('All the endpoints for the Chat Universe API')
     .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'apiKey', in: 'header', name: 'Authorization' },
+      'Bearer',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -28,6 +32,7 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.CLIENT_URL,
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Validation setup

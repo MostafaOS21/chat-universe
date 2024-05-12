@@ -10,6 +10,7 @@ import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import { useEffect, useState, useOptimistic, useRef } from "react";
 import { UserPlus, UserRoundX, UserRoundCheck } from "lucide-react";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
+import { useLazyGetSearchUsersQuery } from "@/lib/redux/services/users/usersService";
 
 const SkeletonUser = () => {
   return (
@@ -180,20 +181,20 @@ export default function UsersList({ search }: { search: string }) {
     currentPage: 1,
   });
   const [hasMore, setHasMore] = useState(true);
+  // RTK Query method
+  const [getSearchUsers] = useLazyGetSearchUsersQuery();
 
   useEffect(() => {
     const fetchUsers = async () => {
-      try {
-        const res = await api.get(`/auth/search/${search}`);
-        const data: ApiResponse<IRequestFriend[]> = await res.data;
+      const res = await getSearchUsers({ search });
+      const { data, isError, error } = res;
+      console.log({ data, isError, error });
 
-        if (data.data) {
-          setUsers(data.data);
-        }
-      } catch (error: any) {
+      if (data?.data) {
+        setUsers(data.data);
+      } else if (isError) {
         toast({
           description: ApiError.generate(error).message,
-          variant: "destructive",
         });
       }
     };

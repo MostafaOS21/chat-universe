@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Dispatch,
-  RefObject,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import { RefObject, useEffect, useState } from "react";
 
 interface IInfiniteScrollProps {
   refTarget: RefObject<HTMLDivElement>;

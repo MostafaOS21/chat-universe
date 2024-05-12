@@ -6,8 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // generate avatar URL
-export function getAvatarUrl(name: string) {
-  return `${process.env.NEXT_PUBLIC_AVATARS_URL}`.concat(name);
+export function getAvatarUrl(name?: string) {
+  return `${process.env.NEXT_PUBLIC_AVATARS_URL}`.concat(name || "");
 }
 
 // Slice String

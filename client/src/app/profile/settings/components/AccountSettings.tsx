@@ -15,7 +15,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/features/api";
 import { ApiError } from "@/lib/api-error";
 import { ApiResponse } from "@/lib/interfaces";
-import { selectUser, updateUsername } from "@/lib/redux/features/authSlice";
+import {
+  selectUser,
+  updateUsername,
+} from "@/lib/redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 
 import { ChevronRight } from "lucide-react";

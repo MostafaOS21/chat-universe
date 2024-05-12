@@ -85,15 +85,51 @@ export class FriendsRequestsService {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    if (requests.length === 0) {
-      throw new NotFoundException('No requests found');
-    }
-
-    console.log(requests);
-
     return {
       message: 'Received requests fetched successfully',
       data: requests,
+    };
+  }
+
+  async getSentRequests(
+    req: userRequest,
+    page: number = 1,
+    limit: number = 30,
+  ) {
+    const requests = await this.friendsRequestsModel
+      .find({ sender: req.user._id })
+      .populate('receiver', '_id name username image')
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return {
+      message: 'Sent requests fetched successfully',
+      data: requests,
+    };
+  }
+
+  async cancelSentRequest(req: userRequest, id: string) {
+    const receiver = await this.userModel
+      .findById(id)
+      .select('_id name username image');
+    const sender = await this.userModel.findById(req.user._id);
+
+    if (!receiver || !sender) {
+      throw new NotFoundException('User not found');
+    }
+
+    const request = await this.friendsRequestsModel.findOneAndDelete({
+      sender: sender._id,
+      receiver: receiver._id.toString(),
+    });
+
+    if (!request) {
+      throw new NotFoundException('Request not found');
+    }
+
+    return {
+      message: 'Request cancelled successfully',
+      data: request._id.toString(),
     };
   }
 }

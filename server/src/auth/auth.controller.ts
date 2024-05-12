@@ -33,7 +33,7 @@ import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 @ApiTags('Auth')
-@UseInterceptors(AuthInterceptor)
+// @UseInterceptors(AuthInterceptor) // Refresh Token is now handled in the client
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

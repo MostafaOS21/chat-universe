@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeProvider from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import StoreProvider from "@/components/providers/StoreProvider";
+import { SessionProvider } from "next-auth/react";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -23,17 +24,19 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={font.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          // disableTransitionOnChange
-        >
+        <SessionProvider>
           <StoreProvider>
-            {children}
-            <Toaster />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              // disableTransitionOnChange
+            >
+              {children}
+              <Toaster />
+            </ThemeProvider>
           </StoreProvider>
-        </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

@@ -1,5 +1,5 @@
 import { HttpCode, HttpStatus, applyDecorators } from '@nestjs/common';
-import { ApiHeader, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
 
 export const SendRequestApiDecorator = () => {
   return applyDecorators(
@@ -7,11 +7,7 @@ export const SendRequestApiDecorator = () => {
       status: HttpStatus.OK,
       description: 'Request sent successfully',
     }),
-    ApiHeader({
-      name: 'authorization',
-      description: 'Bearer token',
-      required: true,
-    }),
+
     HttpCode(HttpStatus.OK),
   );
 };
@@ -26,11 +22,7 @@ export const CancelRequestApiDecorator = () => {
       status: HttpStatus.NOT_FOUND,
       description: 'User not found',
     }),
-    ApiHeader({
-      name: 'authorization',
-      description: 'Bearer token',
-      required: true,
-    }),
+
     HttpCode(HttpStatus.OK),
   );
 };
@@ -41,11 +33,28 @@ export const GetReceivedRequestsApiDecorator = () => {
       status: HttpStatus.OK,
       description: 'Received requests fetched successfully',
     }),
-    ApiHeader({
-      name: 'authorization',
-      description: 'Bearer token',
-      required: true,
+    HttpCode(HttpStatus.OK),
+  );
+};
+
+export const GetSentRequestsApiDecorator = () => {
+  return applyDecorators(
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Sent requests fetched successfully',
     }),
+
+    HttpCode(HttpStatus.OK),
+  );
+};
+
+export const CancelUserSentRequest = () => {
+  return applyDecorators(
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Request canceled successfully',
+    }),
+
     HttpCode(HttpStatus.OK),
   );
 };

@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { MainHomeButton } from "@/components/ui/main-home-button";
 import { ModeToggle } from "@/components/ui/mode-toggle";
+import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
 function Header() {
   return (
@@ -47,8 +49,9 @@ export default async function Home() {
           <div>
             <h1 className="gradient-background">Start Your Chat Now!</h1>
           </div>
-
-          <MainHomeButton />
+          <Suspense fallback={<Skeleton className="w-[250px] h-[50px]" />}>
+            <MainHomeButton />
+          </Suspense>
         </section>
 
         <div className="absolute animate-[rotate_55s_infinite_linear] -z-[1] opacity-30">

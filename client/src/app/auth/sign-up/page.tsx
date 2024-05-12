@@ -48,27 +48,24 @@ export default function SignUpPage() {
       }
 
       // Call the API
-      const data = {
+      const res = await api.post("/auth/sign-up", {
         name,
         email,
         password,
         confirmPassword,
-      };
+      });
 
-      const res = await api.post("/auth/sign-up", data);
-      const resData: ApiResponse = await res.data;
+      const data: ApiResponse<string> = await res.data;
 
       toast({
-        description: resData.message,
-        variant: "default",
+        description: data.message,
         duration: 3000,
       });
 
-      router.push("/auth/log-in");
+      router.push(`/auth/log-in?email=${email}`);
     } catch (error) {
       toast({
-        description: ApiError.generate(error).message,
-        variant: "destructive",
+        description: ApiError.generate(error).message || "User not found.",
         duration: 3000,
       });
     } finally {

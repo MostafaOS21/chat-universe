@@ -4,6 +4,7 @@ export enum FriendsRequestsStatus {
   PENDING = 'pending',
   ACCEPTED = 'accepted',
   REJECTED = 'rejected',
+  NONE = null,
 }
 
 @Schema()
@@ -18,7 +19,6 @@ export class FriendsRequests {
 
   @Prop({
     type: String,
-    default: 'pending',
     enum: FriendsRequestsStatus,
   })
   status: FriendsRequestsStatus;

@@ -51,7 +51,7 @@ export default function LogInPage() {
         description: "Logged in successfully!",
       });
 
-      router.replace("/");
+      window.location.href = "/";
     } catch (error) {
       toast({
         description: `${ApiError.generate(error).message}`,

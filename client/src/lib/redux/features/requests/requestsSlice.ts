@@ -63,6 +63,16 @@ export const requestsSlice = createSlice({
         state.received = action.payload?.data || [];
       }
     );
+    builder.addMatcher(
+      requestsService.endpoints.cancelSentRequest.matchFulfilled,
+      (state, action) => {
+        const id = action.payload.data;
+
+        state.sent = state.sent.filter((item) => item._id !== id);
+
+        return state;
+      }
+    );
   },
 });
 

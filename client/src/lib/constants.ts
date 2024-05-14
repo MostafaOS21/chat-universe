@@ -26,3 +26,8 @@ export const AUTH_ROUTES = ["/auth/log-in", "/auth/sign-up"];
 
 // Protected Routes
 export const PROTECTED_ROUTES = ["/chat"];
+
+// Button With Icon Style
+
+export const buttonStyles = "flex items-center gap-2";
+export const iconSize = 18;

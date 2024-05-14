@@ -25,8 +25,6 @@ export default function SentRequest() {
   const { hasMore } = useHasMore({ data: data?.data, limiter: requestsLimit });
   // false true undefined true false
 
-  console.log(hasMore);
-
   return (
     <div className="grid grid-cols-1 gap-3 mb-3" ref={showMoreRef}>
       <Suspense fallback={<SkeletonLoaders />}>

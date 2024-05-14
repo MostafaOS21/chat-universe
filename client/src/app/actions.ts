@@ -1,7 +1,6 @@
 "use server";
 
-import { auth, signIn } from "@/auth";
-import { IUser } from "../../types/user";
+import { auth, signIn, signOut as logOut } from "@/auth";
 import * as jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
@@ -56,4 +55,9 @@ export const logIn = async ({
   password: string;
 }) => {
   await signIn("credentials", { email, password });
+};
+
+export const signOut = async () => {
+  cookies().delete("Authorization");
+  await logOut();
 };

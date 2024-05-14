@@ -10,6 +10,7 @@ import { PROFILE_ROUTES } from "@/lib/constants";
 import { ApiResponse } from "@/lib/interfaces";
 import { logout, selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { signOutHandler } from "@/lib/utils";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,25 +24,12 @@ export default function Aside() {
 
   // Handle sign out
   const handleSignOut = async () => {
-    try {
-      const res = await api.delete("/auth/sign-out");
-      const data: ApiResponse = await res.data;
-
-      toast({
-        description: data.message,
-        duration: 2000,
-      });
-
-      dispatch(logout());
-
-      router.push("/");
-    } catch (error) {
-      console.log(error);
-      toast({
-        description: ApiError.generate(error).message,
-        variant: "destructive",
-      });
-    }
+    await signOutHandler();
+    router.push("/");
+    toast({
+      description: "You have been signed out",
+    });
+    dispatch(logout());
   };
 
   return (

@@ -4,6 +4,7 @@ import { useAppDispatch } from "@/lib/redux/hooks";
 import { useSession } from "next-auth/react";
 import { generateAccessToken } from "@/app/actions";
 import { login } from "@/lib/redux/features/auth/authSlice";
+import { Loader } from "lucide-react";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
@@ -21,5 +22,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [session.status]);
 
-  return <>{children}</>;
+  return (
+    <>
+      <span
+        id="overlay"
+        className="w-0 h-0 transition-opacity opacity-0 fixed left-0 top-0 z-[9999999] bg-white grid place-content-center"
+      >
+        <Loader className="animate-spin text-primary" size={28} />
+      </span>
+      {children}
+    </>
+  );
 }

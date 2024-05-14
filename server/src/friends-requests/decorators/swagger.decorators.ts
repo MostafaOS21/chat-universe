@@ -58,3 +58,36 @@ export const CancelUserSentRequest = () => {
     HttpCode(HttpStatus.OK),
   );
 };
+
+export const AcceptRequestApiDecorator = () => {
+  return applyDecorators(
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Request accepted successfully',
+    }),
+
+    HttpCode(HttpStatus.OK),
+  );
+};
+
+export const UnfriendApiDecorator = () => {
+  return applyDecorators(
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'User unfriended successfully',
+    }),
+
+    HttpCode(HttpStatus.OK),
+  );
+};
+
+export const RejectRequestApiDecorator = () => {
+  return applyDecorators(
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Request rejected successfully',
+    }),
+
+    HttpCode(HttpStatus.OK),
+  );
+};

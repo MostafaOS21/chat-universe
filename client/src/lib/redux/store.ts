@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./features/auth/authSlice";
 import apiSlice from "./api/apiSlice";
 import { requestsSlice } from "./features/requests/requestsSlice";
+import { searchUsersSlice } from "./features/search-users/searchUsersSlice";
 
 export const makeStore = () => {
   return configureStore({
@@ -9,6 +10,7 @@ export const makeStore = () => {
       auth: authSlice.reducer,
       [apiSlice.reducerPath]: apiSlice.reducer,
       [requestsSlice.reducerPath]: requestsSlice.reducer,
+      [searchUsersSlice.reducerPath]: searchUsersSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(apiSlice.middleware),

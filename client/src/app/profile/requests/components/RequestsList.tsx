@@ -9,8 +9,10 @@ import {
 import { IRequest, IRequestPopulated } from "@/lib/interfaces";
 import { getAvatarUrl, sliceString } from "@/lib/utils";
 import { Check, X } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { SkeletonLoaders } from "./SkeletonLoaders";
+import { useCancelSentRequestMutation } from "@/lib/redux/services/requests/requestsService";
+import { useToast } from "@/components/ui/use-toast";
 
 type ItemType = "received" | "sent";
 
@@ -21,17 +23,47 @@ const RequestItem = ({
   item: IRequestPopulated;
   type: ItemType;
 }) => {
+  // Toast
+  const { toast } = useToast();
+  // For Sent Requests
+  const [
+    cancelRequest,
+    {
+      isLoading: isCancelingSent,
+      isSuccess: isCanceledSentSuccess,
+      isError: isCanceledSentError,
+    },
+  ] = useCancelSentRequestMutation();
+  // Actions Buttons
   let actions;
+
+  // Using useEffect to show toast message
+  useEffect(() => {
+    if (isCanceledSentSuccess) {
+      toast({
+        title: "Request canceled successfully",
+      });
+    }
+
+    if (isCanceledSentError) {
+      toast({
+        title: "Error canceling request",
+        variant: "destructive",
+      });
+    }
+  }, [isCanceledSentSuccess, isCanceledSentError]);
 
   if (type === "sent") {
     actions = (
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            className="text-red-700 hover:text-red-800 bg-transparent rounded-lg"
+            className="text-red-800 hover:text-red-900 bg-transparent rounded-lg flex items-center gap-1"
             variant={"ghost"}
+            onClick={async () => await cancelRequest({ id: item._id })}
+            disabled={isCancelingSent || isCanceledSentSuccess}
           >
-            <X size={17} />
+            <X size={15} /> Cancel
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -115,5 +147,7 @@ export default function RequestsList({
     return <SkeletonLoaders />;
   }
 
-  return items.map((item) => <RequestItem item={item.receiver} type={type} />);
+  return items.map((item) => (
+    <RequestItem item={item.receiver} type={type} key={item._id} />
+  ));
 }

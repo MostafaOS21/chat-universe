@@ -2,7 +2,7 @@
 import { ShowMoreIcon } from "@/components/ui/show-more-icon";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePathname, useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api-error";
@@ -10,6 +10,10 @@ import { api } from "@/features/api";
 import { ApiResponse } from "@/lib/interfaces";
 import { PROFILE_ROUTES } from "@/lib/constants";
 import ProfileBarContent from "./ProfileBarContent";
+import { Skeleton } from "@/components/ui/skeleton";
+import { signOutHandler } from "@/lib/utils";
+import { logout } from "@/lib/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/lib/redux/hooks";
 
 export default function ProfileBar() {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -17,6 +21,7 @@ export default function ProfileBar() {
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -38,7 +43,6 @@ export default function ProfileBar() {
 
   // Handle is opened
   const handleIsOpened = () => {
-    console.log("HEY");
     const conversationList = document.getElementById("conversationList");
 
     if (extraMenuRef.current?.getAttribute("aria-expanded") === "true") {
@@ -55,25 +59,14 @@ export default function ProfileBar() {
   };
 
   // Handle sign out
+  // Handle sign out
   const handleSignOut = async () => {
-    try {
-      const res = await api.delete("/auth/sign-out");
-      const data: ApiResponse = await res.data;
-
-      toast({
-        description: data.message,
-        duration: 2000,
-      });
-
-      // TODO: Sign out user
-      router.push("/");
-    } catch (error) {
-      console.log(error);
-      toast({
-        description: ApiError.generate(error).message,
-        variant: "destructive",
-      });
-    }
+    await signOutHandler();
+    router.push("/");
+    toast({
+      description: "You have been signed out",
+    });
+    dispatch(logout());
   };
 
   return (
@@ -84,7 +77,9 @@ export default function ProfileBar() {
         ref={buttonRef}
         onClick={handleIsOpened}
       >
-        <ProfileBarContent />
+        <Suspense fallback={<Skeleton className="w-full h-full" />}>
+          <ProfileBarContent />
+        </Suspense>
 
         <ShowMoreIcon />
       </Button>

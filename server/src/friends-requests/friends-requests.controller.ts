@@ -13,10 +13,13 @@ import { FriendsRequestsService } from './friends-requests.service';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import {
+  AcceptRequestApiDecorator,
   CancelRequestApiDecorator,
   GetReceivedRequestsApiDecorator,
   GetSentRequestsApiDecorator,
+  RejectRequestApiDecorator,
   SendRequestApiDecorator,
+  UnfriendApiDecorator,
 } from './decorators/swagger.decorators';
 import { userRequest } from 'types';
 
@@ -64,5 +67,23 @@ export class FriendsRequestsController {
   @CancelRequestApiDecorator()
   cancelSentRequest(@Param('id') id: string, @Req() req: userRequest) {
     return this.friendsRequestsService.cancelSentRequest(req, id);
+  }
+
+  @Patch('received/accept/:id')
+  @AcceptRequestApiDecorator()
+  acceptRequest(@Param('id') id: string, @Req() req: userRequest) {
+    return this.friendsRequestsService.acceptRequest(req, id);
+  }
+
+  @Patch('received/unfriend/:id')
+  @UnfriendApiDecorator()
+  unfriend(@Param('id') id: string, @Req() req: userRequest) {
+    return this.friendsRequestsService.unfriend(req, id);
+  }
+
+  @Delete('received/reject/:id')
+  @RejectRequestApiDecorator()
+  rejectRequest(@Param('id') id: string, @Req() req: userRequest) {
+    return this.friendsRequestsService.rejectRequest(req, id);
   }
 }

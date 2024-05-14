@@ -101,14 +101,25 @@ export class AuthService {
     for (const u of foundUsers) {
       const friendRequest = await this.friendsRequestsModel
         .findOne({
-          sender: user._id,
-          receiver: u._id.toString(),
+          sender: { $in: [searchingUser._id, u._id] },
+          receiver: { $in: [searchingUser._id, u._id] },
         })
-        .select('status');
+        .select('status sender');
+
+      // Check if the user is the sender or the receiver
+      let isSender;
+
+      if (friendRequest) {
+        isSender =
+          friendRequest.sender.toString() === searchingUser._id.toString();
+      }
+
+      console.log({ name: u.name, isSender, status: friendRequest?.status });
 
       users.push({
         ...u.toObject(),
         status: friendRequest?.status ? friendRequest?.status : null,
+        isSender,
       });
     }
 

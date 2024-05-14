@@ -8,9 +8,19 @@ import { ApiResponse, IRequestFriend } from "@/lib/interfaces";
 import { getAvatarUrl, sliceString } from "@/lib/utils";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import { useEffect, useState, useOptimistic, useRef } from "react";
-import { UserPlus, UserRoundX, UserRoundCheck } from "lucide-react";
+import { UserPlus, UserRoundX, UserRoundCheck, UserCheck } from "lucide-react";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 import { useLazyGetSearchUsersQuery } from "@/lib/redux/services/users/usersService";
+import { buttonStyles, iconSize } from "@/lib/constants";
+import AcceptReceivedRequest from "@/components/shared/action-buttons/accept-received-request";
+import SendRequestButton from "@/components/shared/action-buttons/send-request-button";
+import CancelSentRequestButton from "@/components/shared/action-buttons/cancel-sent-request-button";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import {
+  emptySearchUsers,
+  selectUsers,
+} from "@/lib/redux/features/search-users/searchUsersSlice";
+import FriendButton from "@/components/shared/action-buttons/friend-button";
 
 const SkeletonUser = () => {
   return (
@@ -27,122 +37,65 @@ const SkeletonUser = () => {
   );
 };
 
-const UserItem = ({
-  user,
-  setUsers,
-  setOptimisticUsers,
-}: {
-  user: IRequestFriend;
-  setUsers: React.Dispatch<React.SetStateAction<IRequestFriend[]>>;
-  setOptimisticUsers: React.Dispatch<React.SetStateAction<IRequestFriend[]>>;
-}) => {
+const UserItem = ({ user }: { user: IRequestFriend }) => {
   const [isPending, setIsPending] = useState(false);
   const { toast } = useToast();
-  const iconSize = 18;
-  const buttonStyles = "flex items-center gap-2";
+  const setters = { setIsPending };
   let button;
 
-  // Add request
-  const addRequest = async (user: IRequestFriend) => {
-    try {
-      setIsPending(true);
-
-      const formattedUser: IRequestFriend = {
-        ...user,
-        status: "pending",
-      };
-
-      setOptimisticUsers((prev) => {
-        const index = prev.findIndex((u) => u._id === user._id);
-        const newUsers = [...prev];
-        newUsers[index] = formattedUser;
-        return newUsers;
-      });
-
-      const res = await api.post(`/friends-requests/send/${user._id}`);
-      const data: ApiResponse<IRequestFriend> = await res.data;
-
-      setUsers((prev) => {
-        const index = prev.findIndex((u) => u._id === user._id);
-        const newUsers = [...prev];
-        if (data.data) newUsers[index] = data.data;
-        return newUsers;
-      });
-
-      toast({
-        description: data.message,
-      });
-    } catch (error) {
-      toast({
-        description: ApiError.generate(error).message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsPending(false);
-    }
-  };
-
-  const cancelRequest = async (user: IRequestFriend) => {
-    try {
-      setIsPending(true);
-      const res = await api.delete(`/friends-requests/cancel/${user._id}`);
-      const data: ApiResponse<IRequestFriend> = await res.data;
-
-      setUsers((prev) => {
-        const index = prev.findIndex((u) => u._id === user._id);
-        const newUsers = [...prev];
-        if (data.data) newUsers[index] = data.data;
-        return newUsers;
-      });
-
-      toast({
-        description: data.message,
-      });
-    } catch (error) {
-      toast({
-        description: ApiError.generate(error).message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsPending(false);
-    }
-  };
+  console.log({
+    username: user.username,
+    status: user.status,
+    isSender: user.isSender,
+  });
 
   switch (user.status) {
     case "pending":
-      button = (
-        <Button
-          className={buttonStyles}
-          variant={"secondary"}
-          onClick={() => cancelRequest(user)}
-          disabled={isPending}
-        >
-          <UserRoundX size={iconSize} /> Cancel
-        </Button>
-      );
+      switch (user.isSender) {
+        case true:
+          button = (
+            <CancelSentRequestButton
+              id={user._id}
+              isPending={isPending}
+              setters={setters}
+            />
+          );
+          break;
+        default:
+          button = (
+            <div className="flex items-center gap-2">
+              <Button
+                className={buttonStyles}
+                variant={"secondary"}
+                // onClick={() => cancelRequest(user)}
+                disabled={isPending}
+              >
+                <UserRoundX size={iconSize} />
+              </Button>
+
+              <AcceptReceivedRequest
+                id={user._id}
+                isPending={isPending}
+                setters={setters}
+              />
+            </div>
+          );
+      }
       break;
 
     case "accepted":
       button = (
-        <Button
-          className={buttonStyles}
-          variant={"outline"}
-          disabled={isPending}
-        >
-          <UserRoundCheck size={iconSize} /> Friends
-        </Button>
+        <FriendButton id={user._id} isPending={isPending} setters={setters} />
       );
       break;
 
     default:
       button = (
-        <Button
-          className={buttonStyles}
-          onClick={() => addRequest(user)}
-          disabled={isPending}
-        >
-          <UserPlus size={iconSize} /> Request
-        </Button>
+        <SendRequestButton
+          id={user._id}
+          isPending={isPending}
+          setters={setters}
+        />
       );
   }
 
@@ -172,8 +125,6 @@ const UserItem = ({
 };
 
 export default function UsersList({ search }: { search: string }) {
-  const [users, setUsers] = useState<IRequestFriend[]>([]);
-  const [optimisticUsers, setOptimisticUsers] = useOptimistic(users);
   const { toast } = useToast();
   const usersListRef = useRef<HTMLDivElement>(null);
   const { page, setPage } = useInfiniteScroll({
@@ -183,26 +134,26 @@ export default function UsersList({ search }: { search: string }) {
   const [hasMore, setHasMore] = useState(true);
   // RTK Query method
   const [getSearchUsers] = useLazyGetSearchUsersQuery();
+  const users = useAppSelector(selectUsers);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const res = await getSearchUsers({ search });
-      const { data, isError, error } = res;
-      console.log({ data, isError, error });
-
-      if (data?.data) {
-        setUsers(data.data);
-      } else if (isError) {
+      try {
+        dispatch(emptySearchUsers());
+        setPage(1);
+        await getSearchUsers({ search, page: 1 });
+      } catch (error) {
         toast({
           description: ApiError.generate(error).message,
+          variant: "destructive",
         });
+        setHasMore(false);
       }
     };
 
     if (search) {
       fetchUsers();
-    } else {
-      setUsers([]);
     }
 
     setPage(0);
@@ -211,20 +162,13 @@ export default function UsersList({ search }: { search: string }) {
   useEffect(() => {
     const fetchMoreUsers = async () => {
       try {
-        const res = await api.get(`/auth/search/${search}?page=${page}`);
-        const data: ApiResponse<IRequestFriend[]> = await res.data;
-        const users = data?.data ? data?.data : [];
-
-        if (!users.length) {
-          setHasMore(false);
-        }
-
-        setUsers((prev) => [...prev, ...users]);
+        const { data } = await getSearchUsers({ search, page });
       } catch (error) {
         toast({
           description: ApiError.generate(error).message,
           variant: "destructive",
         });
+        setHasMore(false);
       }
     };
 
@@ -235,15 +179,10 @@ export default function UsersList({ search }: { search: string }) {
 
   return (
     <div className="h-[300px] overflow-y-auto" ref={usersListRef}>
-      {optimisticUsers?.map((user, i) => (
-        <UserItem
-          key={i}
-          user={user}
-          setUsers={setUsers}
-          setOptimisticUsers={setOptimisticUsers}
-        />
+      {users?.map((user, i) => (
+        <UserItem key={i} user={user} />
       ))}
-      {optimisticUsers?.length && hasMore ? <SkeletonUser /> : null}
+      {hasMore ? <SkeletonUser /> : null}
     </div>
   );
 }

@@ -8,17 +8,15 @@ export type FriendShipStatus = "pending" | "accepted" | "rejected" | null;
 export interface IRequestFriend extends IUser {
   status: FriendShipStatus;
   isSender: boolean;
+  isRejectedOne?: boolean;
 }
+
+type SenderOrReceiver = IRequestPopulated;
 
 export interface IRequest {
   _id: string;
-  sender: string;
-  receiver: {
-    _id: string;
-    name: string;
-    username: string;
-    image: string;
-  };
+  sender: SenderOrReceiver;
+  receiver: SenderOrReceiver;
   status: FriendShipStatus;
 }
 

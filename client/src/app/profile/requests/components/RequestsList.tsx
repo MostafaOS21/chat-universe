@@ -13,6 +13,9 @@ import React, { useEffect } from "react";
 import { SkeletonLoaders } from "./SkeletonLoaders";
 import { useCancelSentRequestMutation } from "@/lib/redux/services/requests/requestsService";
 import { useToast } from "@/components/ui/use-toast";
+import CancelSentRequestButton from "@/components/shared/action-buttons/cancel-sent-request-button";
+import RejectReceivedRequest from "@/components/shared/action-buttons/reject-received-request";
+import AcceptReceivedRequest from "@/components/shared/action-buttons/accept-received-request";
 
 type ItemType = "received" | "sent";
 
@@ -23,59 +26,24 @@ const RequestItem = ({
   item: IRequestPopulated;
   type: ItemType;
 }) => {
-  // Toast
-  const { toast } = useToast();
-  // For Sent Requests
-  const [
-    cancelRequest,
-    {
-      isLoading: isCancelingSent,
-      isSuccess: isCanceledSentSuccess,
-      isError: isCanceledSentError,
-    },
-  ] = useCancelSentRequestMutation();
+  const [isPending, setIsPending] = React.useState(false);
+
   // Actions Buttons
   let actions;
 
-  // Using useEffect to show toast message
-  useEffect(() => {
-    if (isCanceledSentSuccess) {
-      toast({
-        title: "Request canceled successfully",
-      });
-    }
-
-    if (isCanceledSentError) {
-      toast({
-        title: "Error canceling request",
-        variant: "destructive",
-      });
-    }
-  }, [isCanceledSentSuccess, isCanceledSentError]);
-
   if (type === "sent") {
     actions = (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            className="text-red-800 hover:text-red-900 bg-transparent rounded-lg flex items-center gap-1"
-            variant={"ghost"}
-            onClick={async () => await cancelRequest({ id: item._id })}
-            disabled={isCancelingSent || isCanceledSentSuccess}
-          >
-            <X size={15} /> Cancel
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Cancel</p>
-        </TooltipContent>
-      </Tooltip>
+      <CancelSentRequestButton
+        id={item._id}
+        setters={{ setIsPending }}
+        isPending={isPending}
+      />
     );
   } else {
     actions = (
-      <>
+      <div className="flex items-center gap-3">
         {/* Cancel Request */}
-        <Tooltip>
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <Button
               className="text-red-700 hover:text-red-800 bg-transparent rounded-lg"
@@ -87,10 +55,20 @@ const RequestItem = ({
           <TooltipContent>
             <p>Reject</p>
           </TooltipContent>
-        </Tooltip>
+        </Tooltip> */}
+        <RejectReceivedRequest
+          id={item._id}
+          setters={{ setIsPending }}
+          isPending={isPending}
+        />
 
         {/* Accept Request */}
-        <Tooltip>
+        <AcceptReceivedRequest
+          id={item._id}
+          setters={{ setIsPending }}
+          isPending={isPending}
+        />
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <Button
               className="text-green-700 hover:text-green-800 bg-transparent rounded-lg"
@@ -102,8 +80,8 @@ const RequestItem = ({
           <TooltipContent>
             <p>Accept</p>
           </TooltipContent>
-        </Tooltip>
-      </>
+        </Tooltip> */}
+      </div>
     );
   }
 
@@ -145,6 +123,15 @@ export default function RequestsList({
 }) {
   if (!items) {
     return <SkeletonLoaders />;
+  }
+
+  console.log(type);
+  console.log(items);
+
+  if (type === "received") {
+    return items.map((item) => (
+      <RequestItem item={item.sender} type={type} key={item._id} />
+    ));
   }
 
   return items.map((item) => (

@@ -9,7 +9,6 @@ import RequestsList from "./RequestsList";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { selectSentRequests } from "@/lib/redux/features/requests/requestsSlice";
 import LoadingDummySkeleton from "./LoadingDummySkeleton";
-import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 import useHasMore from "@/hooks/useHasMore";
 import { Button } from "@/components/ui/button";
 
@@ -18,7 +17,7 @@ const currentPage = 1;
 export default function SentRequest() {
   const showMoreRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(currentPage);
-  const { isSuccess, isFetching, data, isLoading } = useGetSentRequestsQuery({
+  const { isFetching, data, isLoading } = useGetSentRequestsQuery({
     page,
   });
   const requests = useAppSelector(selectSentRequests);

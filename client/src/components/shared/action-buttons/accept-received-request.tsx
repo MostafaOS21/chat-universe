@@ -16,7 +16,7 @@ export default function AcceptReceivedRequest({
   isPending,
   setters: { setIsPending },
 }: IUserButtonsProps) {
-  const [accept, { isLoading }] = useAcceptReceivedRequestMutation();
+  const [accept] = useAcceptReceivedRequestMutation();
 
   const acceptReq = async () => {
     setIsPending(true);

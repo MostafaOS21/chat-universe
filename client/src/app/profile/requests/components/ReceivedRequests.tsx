@@ -1,54 +1,46 @@
 "use client";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { IReceivedRequests } from "@/lib/interfaces";
-import { getAvatarUrl, sliceString } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Suspense, useRef, useState } from "react";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
-import { useGetReceivedRequestsQuery } from "@/lib/redux/services/requests/requestsService";
+import {
+  requestsLimit,
+  useGetReceivedRequestsQuery,
+} from "@/lib/redux/services/requests/requestsService";
+import LoadingDummySkeleton from "./LoadingDummySkeleton";
+import useHasMore from "@/hooks/useHasMore";
+import { Button } from "@/components/ui/button";
 import { SkeletonLoaders } from "./SkeletonLoaders";
+import { useAppSelector } from "@/lib/redux/hooks";
+import { selectReceivedRequests } from "@/lib/redux/features/requests/requestsSlice";
+import RequestsList from "./RequestsList";
 
 export const dynamic = "force-dynamic";
 
+const currentPage = 1;
+
 export default function ReceivedRequests() {
   const showMoreRef = useRef<HTMLDivElement>(null);
-  const { page } = useInfiniteScroll({
-    refTarget: showMoreRef,
-    currentPage: 1,
+  const [page, setPage] = useState(currentPage);
+  const { isLoading, isFetching, data } = useGetReceivedRequestsQuery({
+    page,
+    limit: 1,
   });
-  const { data } = useGetReceivedRequestsQuery({ page, limit: 1 });
-  // console.log(data);
-
-  // const [users, setUsers] = useState(data?.data || []);
-
-  // useEffect(() => {
-  //   console.log(page);
-
-  //   if (data?.data !== undefined) {
-  //     setUsers((prev) => [...prev, ...(data.data as IReceivedRequests[])]);
-  //   }
-  // }, [page, data]);
-
-  // if (!data?.data) return <div>No requests</div>;
+  const { hasMore } = useHasMore({ data: data?.data, limiter: requestsLimit });
+  const requests = useAppSelector(selectReceivedRequests);
 
   return (
-    <div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-3"
-      ref={showMoreRef}
-    >
-      {/* {data.data.map((item) => (
-        <RequestItem key={item._id} item={item} />
-      ))} */}
+    <div className="grid grid-cols-1 gap-3 mb-3" ref={showMoreRef}>
+      <Suspense fallback={<SkeletonLoaders />}>
+        <RequestsList items={requests} type="received" />
+      </Suspense>
 
-      <SkeletonLoaders />
+      <Button
+        onClick={(_) => setPage((v) => v + 1)}
+        variant={"secondary"}
+        disabled={isLoading || isFetching || !hasMore}
+      >
+        Load More
+      </Button>
+      {isFetching || isLoading ? <LoadingDummySkeleton /> : null}
     </div>
   );
 }

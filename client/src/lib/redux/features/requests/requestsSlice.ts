@@ -53,14 +53,26 @@ export const requestsSlice = createSlice({
       requestsService.endpoints.getSentRequests.matchFulfilled,
       (state, action) => {
         const newData = action.payload?.data || [];
+        state.sent.push(...newData);
 
-        state.sent = [...state.sent, ...newData];
+        state.sent = state.sent.filter(
+          (r) => !state.sent.some((req) => r._id === req._id)
+        );
+
+        return state;
       }
     );
     builder.addMatcher(
       requestsService.endpoints.getReceivedRequests.matchFulfilled,
       (state, action) => {
-        state.received = action.payload?.data || [];
+        const newData = action.payload?.data || [];
+        state.received.push(...newData);
+
+        state.received = state.received.filter(
+          (r) => !state.received.some((req) => r._id === req._id)
+        );
+
+        return state;
       }
     );
     builder.addMatcher(
@@ -68,7 +80,42 @@ export const requestsSlice = createSlice({
       (state, action) => {
         const id = action.payload.data;
 
-        state.sent = state.sent.filter((item) => item._id !== id);
+        // Remove using splice
+        const index = state.sent.findIndex((item) => item._id === id);
+        state.sent.splice(index, 1);
+
+        return state;
+      }
+    );
+
+    builder.addMatcher(
+      requestsService.endpoints.rejectReceivedRequest.matchFulfilled,
+      (state, action) => {
+        const id = action.payload.data;
+
+        // Remove using splice
+        const index = state.received.findIndex((item) => item._id === id);
+        state.received.splice(index, 1);
+
+        return state;
+      }
+    );
+    builder.addMatcher(
+      requestsService.endpoints.getReceivedRequests.matchFulfilled,
+      (state, action) => {
+        const newData = action.payload?.data || [];
+
+        state.received = [...state.received, ...newData];
+      }
+    );
+    builder.addMatcher(
+      requestsService.endpoints.acceptReceivedRequest.matchFulfilled,
+      (state, action) => {
+        const id = action.payload.data;
+
+        // Remove using splice
+        const index = state.received.findIndex((item) => item._id === id);
+        state.received.splice(index, 1);
 
         return state;
       }

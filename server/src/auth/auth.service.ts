@@ -107,19 +107,27 @@ export class AuthService {
         .select('status sender');
 
       // Check if the user is the sender or the receiver
-      let isSender;
+      let isSender: boolean;
 
       if (friendRequest) {
         isSender =
           friendRequest.sender.toString() === searchingUser._id.toString();
       }
 
-      console.log({ name: u.name, isSender, status: friendRequest?.status });
+      const isRejectedOne = friendRequest?.status === 'rejected' && isSender;
+
+      console.log({
+        name: u.name,
+        isSender,
+        status: friendRequest?.status,
+        isRejectedOne,
+      });
 
       users.push({
         ...u.toObject(),
         status: friendRequest?.status ? friendRequest?.status : null,
         isSender,
+        isRejectedOne,
       });
     }
 

@@ -96,6 +96,22 @@ export const searchUsersSlice = createSlice({
           }
         }
       );
+    builder.addMatcher(
+      requestsService.endpoints.rejectReceivedRequest.matchFulfilled,
+      (state, { payload: { data } }) => {
+        const id = data;
+
+        if (id) {
+          return state.map((user) => {
+            if (user._id === id) {
+              return { ...user, status: "rejected", isRejectedOne: false };
+            }
+
+            return user;
+          });
+        }
+      }
+    );
   },
 });
 

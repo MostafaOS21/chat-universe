@@ -45,14 +45,12 @@ export const requestsService = apiSlice.injectEndpoints({
         url: `/friends-requests/sent/cancel/${id}`,
         method: "PATCH",
       }),
-      // invalidatesTags: ["Search-Users"],
     }),
     acceptReceivedRequest: build.mutation<ApiResponse<string>, string>({
       query: (id) => ({
         url: `/friends-requests/received/accept/${id}`,
         method: "PATCH",
       }),
-      // invalidatesTags: ["Search-Users"],
     }),
     // PATCH /api/friends-requests/received/unfriend/{id}
     unfriend: build.mutation<ApiResponse<string>, string>({
@@ -60,7 +58,6 @@ export const requestsService = apiSlice.injectEndpoints({
         url: `/friends-requests/received/unfriend/${id}`,
         method: "PATCH",
       }),
-      // invalidatesTags: ["Search-Users"],
     }),
     // POST /friends-requests/send/{id}
     sendRequest: build.mutation<ApiResponse<string>, string>({
@@ -69,6 +66,13 @@ export const requestsService = apiSlice.injectEndpoints({
         method: "POST",
       }),
       // invalidatesTags: ["Search-Users"],
+    }),
+    // DELETE /friends-requests/received/reject/{id}
+    rejectReceivedRequest: build.mutation<ApiResponse<string>, string>({
+      query: (id) => ({
+        url: `/friends-requests/received/reject/${id}`,
+        method: "DELETE",
+      }),
     }),
   }),
 });
@@ -80,4 +84,5 @@ export const {
   useAcceptReceivedRequestMutation,
   useSendRequestMutation,
   useUnfriendMutation,
+  useRejectReceivedRequestMutation,
 } = requestsService;

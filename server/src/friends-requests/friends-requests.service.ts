@@ -19,7 +19,6 @@ export class FriendsRequestsService {
   async sendRequest(req: userRequest, id: string) {
     const receiver = await this.userModel.findById(id).select('_id');
     const sender = await this.userModel.findById(req.user._id);
-    //.select('friendsList _id name username image');
 
     if (!receiver || !sender) {
       throw new NotFoundException('User not found');
@@ -29,12 +28,12 @@ export class FriendsRequestsService {
       throw new NotFoundException('You cannot send request to yourself');
     }
 
-    let relation;
-
-    relation = await this.friendsRequestsModel.findOne({
-      sender: sender._id,
+    const relation = await this.friendsRequestsModel.findOne({
+      sender: sender._id.toString(),
       receiver: receiver._id.toString(),
     });
+
+    console.log('Before relation', relation);
 
     if (relation) {
       if (relation.status === FriendsRequestsStatus.PENDING) {
@@ -65,13 +64,15 @@ export class FriendsRequestsService {
       };
     }
 
-    relation = new this.friendsRequestsModel({
+    const newRelation = new this.friendsRequestsModel({
       sender: sender._id,
       receiver: receiver._id.toString(),
       status: FriendsRequestsStatus.PENDING,
     });
 
-    await relation.save();
+    console.log('After relation', newRelation);
+
+    await newRelation.save();
 
     return {
       message: 'Request sent successfully',
@@ -110,7 +111,7 @@ export class FriendsRequestsService {
     const { user } = req;
 
     const requests = await this.friendsRequestsModel
-      .find({ receiver: user._id })
+      .find({ receiver: user._id, status: FriendsRequestsStatus.PENDING })
       .populate('sender', '_id name username image')
       .skip((page - 1) * limit)
       .limit(limit);
@@ -127,7 +128,7 @@ export class FriendsRequestsService {
     limit: number = 30,
   ) {
     const requests = await this.friendsRequestsModel
-      .find({ sender: req.user._id })
+      .find({ sender: req.user._id, status: FriendsRequestsStatus.PENDING })
       .populate('receiver', '_id name username image')
       .skip((page - 1) * limit)
       .limit(limit);
@@ -185,7 +186,7 @@ export class FriendsRequestsService {
 
     return {
       message: 'Request accepted successfully',
-      data: request._id.toString(),
+      data: sender._id.toString(),
     };
   }
 

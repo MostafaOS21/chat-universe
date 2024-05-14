@@ -21,6 +21,7 @@ import {
   selectUsers,
 } from "@/lib/redux/features/search-users/searchUsersSlice";
 import FriendButton from "@/components/shared/action-buttons/friend-button";
+import RejectReceivedRequest from "@/components/shared/action-buttons/reject-received-request";
 
 const SkeletonUser = () => {
   return (
@@ -39,15 +40,8 @@ const SkeletonUser = () => {
 
 const UserItem = ({ user }: { user: IRequestFriend }) => {
   const [isPending, setIsPending] = useState(false);
-  const { toast } = useToast();
   const setters = { setIsPending };
   let button;
-
-  console.log({
-    username: user.username,
-    status: user.status,
-    isSender: user.isSender,
-  });
 
   switch (user.status) {
     case "pending":
@@ -64,14 +58,11 @@ const UserItem = ({ user }: { user: IRequestFriend }) => {
         default:
           button = (
             <div className="flex items-center gap-2">
-              <Button
-                className={buttonStyles}
-                variant={"secondary"}
-                // onClick={() => cancelRequest(user)}
-                disabled={isPending}
-              >
-                <UserRoundX size={iconSize} />
-              </Button>
+              <RejectReceivedRequest
+                id={user._id}
+                isPending={isPending}
+                setters={setters}
+              />
 
               <AcceptReceivedRequest
                 id={user._id}
@@ -87,6 +78,24 @@ const UserItem = ({ user }: { user: IRequestFriend }) => {
       button = (
         <FriendButton id={user._id} isPending={isPending} setters={setters} />
       );
+      break;
+
+    case "rejected":
+      switch (user.isRejectedOne) {
+        case true:
+          button = null;
+          break;
+
+        default:
+          button = (
+            <SendRequestButton
+              id={user._id}
+              isPending={isPending}
+              setters={setters}
+            />
+          );
+      }
+
       break;
 
     default:

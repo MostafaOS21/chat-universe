@@ -12,17 +12,14 @@ import {
 import { ImageIcon } from "@/components/ui/get-icon";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { ApiError } from "@/lib/api-error";
 import { PASSWORD_PATTERN_HTML } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export default function LogInPage() {
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,8 +51,8 @@ export default function LogInPage() {
       window.location.href = "/";
     } catch (error) {
       toast({
-        description: `${ApiError.generate(error).message}`,
-        variant: "destructive",
+        description:
+          "Error logging in! Please ensure your credentials are correct",
       });
     } finally {
       setIsPending(false);

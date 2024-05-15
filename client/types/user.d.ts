@@ -1,3 +1,8 @@
+export enum UserStatus {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+}
+
 export interface IUser {
   _id: string;
   id: string;
@@ -7,4 +12,5 @@ export interface IUser {
   createdAt: string;
   updatedAt: string;
   username: string;
+  status: UserStatus;
 }

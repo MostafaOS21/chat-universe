@@ -1,6 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
 
+// Enum for user status
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+}
+
 @Schema()
 export class User {
   _id: string;
@@ -24,6 +30,9 @@ export class User {
 
   @Prop({ default: Date.now })
   updatedAt: Date;
+
+  @Prop({ default: UserStatus.INACTIVE })
+  status: UserStatus;
 }
 
 const userSchema = SchemaFactory.createForClass(User);

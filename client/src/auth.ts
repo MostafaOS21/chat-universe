@@ -3,14 +3,19 @@ import Credentials from "next-auth/providers/credentials";
 import { baseUrl } from "./features/api";
 import { ApiResponse } from "./lib/interfaces";
 import { IUser } from "../types/user";
+import { ApiError } from "./lib/api-error";
+import { redirect } from "next/navigation";
+
+class InvalidCredentialsError extends Error {
+  constructor(msg: string) {
+    super(msg);
+    this.name = "InvalidCredentialsError";
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
-
-      // TODO: Move this to a separate file
       credentials: {
         name: {},
         email: {},
@@ -34,15 +39,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const data: ApiResponse<IUser> = await res.json();
 
-        user = {
-          ...data.data,
-        };
-
-        if (!user) {
-          // No user found, so this is their first attempt to login
-          // meaning this is also the place you could do registration
-          throw new Error("User not found.");
-        }
+        if (res.ok)
+          user = {
+            ...data.data,
+          };
 
         // return user object with the their profile data
         return user;

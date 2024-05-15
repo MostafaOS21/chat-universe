@@ -7,6 +7,7 @@ import { join } from 'path';
 import { PassportModule } from '@nestjs/passport';
 import { FriendsRequestsModule } from './friends-requests/friends-requests.module';
 import { ProfileModule } from './profile/profile.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProfileModule } from './profile/profile.module';
     PassportModule.register({ session: true }),
     FriendsRequestsModule,
     ProfileModule,
+    GatewayModule,
   ],
 })
 export class AppModule {}

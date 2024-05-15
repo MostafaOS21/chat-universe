@@ -5,9 +5,6 @@ import { LogOut } from "lucide-react";
 import { Suspense, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePathname, useRouter } from "next/navigation";
-import { ApiError } from "@/lib/api-error";
-import { api } from "@/features/api";
-import { ApiResponse } from "@/lib/interfaces";
 import { PROFILE_ROUTES } from "@/lib/constants";
 import ProfileBarContent from "./ProfileBarContent";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,6 +20,7 @@ export default function ProfileBar() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
 
+  // Handle click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (

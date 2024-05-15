@@ -1,6 +1,7 @@
 "use server";
 
 import { auth, signIn, signOut as logOut } from "@/auth";
+import { ApiError } from "@/lib/api-error";
 import * as jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 

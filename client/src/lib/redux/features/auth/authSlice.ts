@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IUser } from "../../../../../types/user";
+import { IUser, UserStatus } from "../../../../../types/user";
 import { getAvatarUrl } from "@/lib/utils";
 
 export interface IAuth extends IUser {
@@ -16,6 +16,7 @@ const initialState: IAuth = {
   image: "",
   createdAt: "",
   updatedAt: "",
+  status: UserStatus.INACTIVE,
 };
 
 const authSlice = createSlice({
@@ -34,6 +35,7 @@ const authSlice = createSlice({
       state.createdAt = action.payload.createdAt;
       state.updatedAt = action.payload.updatedAt;
       state.token = action.payload.token;
+      state.status = UserStatus.ACTIVE;
 
       return state;
     },
@@ -56,11 +58,25 @@ const authSlice = createSlice({
     removeToken: (state) => {
       state.token = null;
     },
+
+    activeUser: (state) => {
+      state.status = UserStatus.ACTIVE;
+    },
+    inactiveUser: (state) => {
+      state.status = UserStatus.INACTIVE;
+    },
   },
 });
 
 export const selectUser = (state: { auth: IAuth }) => state.auth;
 export const selectToken = (state: { auth: IAuth }) => state.auth.token;
 
-export const { login, setToken, removeToken, logout } = authSlice.actions;
+export const {
+  login,
+  setToken,
+  removeToken,
+  logout,
+  activeUser,
+  inactiveUser,
+} = authSlice.actions;
 export default authSlice;

@@ -25,7 +25,9 @@ export default function Aside() {
   // Handle sign out
   const handleSignOut = async () => {
     await signOutHandler();
-    router.push("/");
+
+    window.location.href = "/";
+
     toast({
       description: "You have been signed out",
     });

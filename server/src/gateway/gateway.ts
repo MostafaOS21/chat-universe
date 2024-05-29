@@ -22,25 +22,53 @@ export class ChatUniverseGateway implements OnModuleInit {
   // On module init
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      // listen for disconnect
-      socket.on('disconnect', () => {
-        console.log('Client disconnected', socket.id);
-      });
+      // User is online method
+      socket.on(
+        'updateUserStatus',
+        async (data: { userId: string; status: UserStatus }) => {
+          const { userId, status } = data;
+          const user = await this.userModel.findById(userId);
+
+          if (user) {
+            user.status = status;
+            user.save();
+          }
+
+          // Emit user status
+          this.server.emit('userStatus', { userId, status });
+
+          // listen for disconnect
+          socket.on('disconnect', async () => {
+            const user = await this.userModel.findById(userId);
+
+            if (user) {
+              user.status = UserStatus.INACTIVE;
+              user.save();
+
+              // Emit user status
+              this.server.emit('userStatus', {
+                userId: user._id,
+                status: UserStatus.INACTIVE,
+              });
+            }
+          });
+        },
+      );
     });
   }
 
   // User is online method
-  @SubscribeMessage('updateUserStatus')
-  async handleUserOnline(@Body() data: { userId: string; status: UserStatus }) {
-    const { userId, status } = data;
-    const user = await this.userModel.findById(userId);
+  // @SubscribeMessage('updateUserStatus')
+  // async handleUserOnline(@Body() data: { userId: string; status: UserStatus }) {
+  //   const { userId, status } = data;
+  //   const user = await this.userModel.findById(userId);
 
-    if (user) {
-      user.status = status;
-      user.save();
-    }
+  //   if (user) {
+  //     user.status = status;
+  //     user.save();
+  //   }
 
-    // Emit user status
-    this.server.emit('userStatus', { userId, status });
-  }
+  //   // Emit user status
+  //   this.server.emit('userStatus', { userId, status });
+  // }
 }

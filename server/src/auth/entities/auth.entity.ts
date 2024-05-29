@@ -33,6 +33,9 @@ export class User {
 
   @Prop({ default: UserStatus.INACTIVE })
   status: UserStatus;
+
+  @Prop({ type: String })
+  socketId: string;
 }
 
 const userSchema = SchemaFactory.createForClass(User);

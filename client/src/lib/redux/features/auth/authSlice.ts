@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IUser, UserStatus } from "../../../../../types/user";
+import { IUser, UserStatus } from "../../../../../types/user.d";
 import { getAvatarUrl } from "@/lib/utils";
 
 export interface IAuth extends IUser {

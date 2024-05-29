@@ -6,7 +6,6 @@ export interface ApiResponse<T = undefined> {
 export type FriendShipStatus = "pending" | "accepted" | "rejected" | null;
 
 export interface IRequestFriend extends IUser {
-  status: FriendShipStatus;
   isSender: boolean;
   isRejectedOne?: boolean;
 }

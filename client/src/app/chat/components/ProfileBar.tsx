@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { Suspense, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { PROFILE_ROUTES } from "@/lib/constants";
 import ProfileBarContent from "./ProfileBarContent";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,7 +17,6 @@ export default function ProfileBar() {
   const extraMenuRef = useRef<HTMLUListElement>(null);
   const { toast } = useToast();
   const router = useRouter();
-  const pathname = usePathname();
   const dispatch = useAppDispatch();
 
   // Handle click outside

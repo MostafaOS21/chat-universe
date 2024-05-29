@@ -16,6 +16,21 @@ export class FriendsRequestsService {
     private readonly friendsRequestsModel: Model<FriendsRequests>,
   ) {}
 
+  async getFriends(req: userRequest) {
+    const friends = await this.friendsRequestsModel
+      .find({
+        $or: [{ sender: req.user._id }, { receiver: req.user._id }],
+        status: FriendsRequestsStatus.ACCEPTED,
+      })
+      .populate('sender', '_id name username image')
+      .populate('receiver', '_id name username image');
+
+    return {
+      message: 'Friends fetched successfully',
+      data: friends,
+    };
+  }
+
   async sendRequest(req: userRequest, id: string) {
     const receiver = await this.userModel.findById(id).select('_id');
     const sender = await this.userModel.findById(req.user._id);

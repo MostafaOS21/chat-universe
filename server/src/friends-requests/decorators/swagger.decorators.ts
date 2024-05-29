@@ -91,3 +91,14 @@ export const RejectRequestApiDecorator = () => {
     HttpCode(HttpStatus.OK),
   );
 };
+
+export const GetFriendsApiDecorator = () => {
+  return applyDecorators(
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Friends fetched successfully',
+    }),
+
+    HttpCode(HttpStatus.OK),
+  );
+};

@@ -1,41 +1,48 @@
 "use client";
-import { socket } from "@/socket";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { OnlineBadge } from "@/components/ui/online-badge";
 import { getAvatarUrl } from "@/lib/utils";
+import { socket } from "@/socket";
 import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { UserStatus } from "../../../../types/user.d";
+import { OfflineBadge } from "@/components/ui/offline-badge";
 
 export default function ProfileBarContent() {
   const session = useSession();
   const user = session?.data?.user;
-  const [isOnline, setIsOnline] = useState(false);
+  const [isActive, setIsActive] = React.useState(false);
 
-  // Handle Socket
   useEffect(() => {
-    // make user online + send user data
+    // Emit user status
+    socket.emit("updateUserStatus", {
+      userId: user?.id,
+      status: UserStatus.ACTIVE,
+    });
 
-    if (user) {
+    // Emit user status on disconnect
+    socket.on("disconnect", () => {
       socket.emit("updateUserStatus", {
-        userId: user.id,
-        status: true,
+        userId: user?.id,
+        status: UserStatus.INACTIVE,
       });
-      // updateUserStatus
-      socket.on("updateUserStatus", (data) => {
-        if (data.userId === user.id) {
-          setIsOnline(data.status);
-        }
-      });
-    }
+    });
 
-    // On disconnection
+    // Listen for user status
+    socket.on("userStatus", (data: { userId: string; status: UserStatus }) => {
+      if (data.userId === user?.id) {
+        setIsActive(data.status === UserStatus.ACTIVE);
+      }
+    });
 
+    // Cleanup
     return () => {
-      socket.off("user:online");
+      socket.off("userStatus");
+      socket.off("updateUserStatus");
     };
   }, [user]);
 
-  console.log({ isOnline });
+  console.log({ isActive });
 
   return (
     <div className="flex items-center gap-3">
@@ -45,7 +52,7 @@ export default function ProfileBarContent() {
 
       <div>
         <h4>{user?.name || ""}</h4>
-        <OnlineBadge />
+        {isActive ? <OnlineBadge /> : <OfflineBadge />}
       </div>
     </div>
   );

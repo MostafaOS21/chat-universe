@@ -22,8 +22,6 @@ export class ChatUniverseGateway implements OnModuleInit {
   // On module init
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      console.log('New connection', socket.id);
-
       // listen for disconnect
       socket.on('disconnect', () => {
         console.log('Client disconnected', socket.id);
@@ -33,8 +31,16 @@ export class ChatUniverseGateway implements OnModuleInit {
 
   // User is online method
   @SubscribeMessage('updateUserStatus')
-  handleUserOnline(@Body() data: { userId: string; status: UserStatus }) {
+  async handleUserOnline(@Body() data: { userId: string; status: UserStatus }) {
     const { userId, status } = data;
-    const user = this.userModel.findByIdAndUpdate;
+    const user = await this.userModel.findById(userId);
+
+    if (user) {
+      user.status = status;
+      user.save();
+    }
+
+    // Emit user status
+    this.server.emit('userStatus', { userId, status });
   }
 }

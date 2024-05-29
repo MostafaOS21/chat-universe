@@ -15,6 +15,7 @@ import { AuthGuard } from 'src/auth/guards/auth.guard';
 import {
   AcceptRequestApiDecorator,
   CancelRequestApiDecorator,
+  GetFriendsApiDecorator,
   GetReceivedRequestsApiDecorator,
   GetSentRequestsApiDecorator,
   RejectRequestApiDecorator,
@@ -30,6 +31,12 @@ export class FriendsRequestsController {
   constructor(
     private readonly friendsRequestsService: FriendsRequestsService,
   ) {}
+
+  @Get('friends')
+  @GetFriendsApiDecorator()
+  getFriends(@Req() req: userRequest) {
+    return this.friendsRequestsService.getFriends(req);
+  }
 
   @Post('send/:id')
   @SendRequestApiDecorator()

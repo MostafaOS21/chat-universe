@@ -142,7 +142,8 @@ export default function UsersList({ search }: { search: string }) {
   });
   const [hasMore, setHasMore] = useState(true);
   // RTK Query method
-  const [getSearchUsers] = useLazyGetSearchUsersQuery();
+  const [getSearchUsers, { isLoading: isGettingUsers }] =
+    useLazyGetSearchUsersQuery();
   const users = useAppSelector(selectUsers);
   const dispatch = useAppDispatch();
 
@@ -186,12 +187,24 @@ export default function UsersList({ search }: { search: string }) {
     }
   }, [page]);
 
+  let content;
+
+  if ((users?.length === 0 || !users) && !isGettingUsers) {
+    content = <p className="text-center text-gray-500">No users found</p>;
+  } else {
+    content = (
+      <>
+        {users?.map((user, i) => (
+          <UserItem key={i} user={user} />
+        ))}
+        {hasMore ? <SkeletonUser /> : null}
+      </>
+    );
+  }
+
   return (
     <div className="h-[300px] overflow-y-auto" ref={usersListRef}>
-      {users?.map((user, i) => (
-        <UserItem key={i} user={user} />
-      ))}
-      {hasMore ? <SkeletonUser /> : null}
+      {content}
     </div>
   );
 }

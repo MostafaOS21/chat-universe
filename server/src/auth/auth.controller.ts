@@ -25,7 +25,6 @@ import {
 } from './decorators/swagger.decorators';
 import { FindAuthDto } from './dto/find-auth.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { Request, Response } from 'express';
 import { userRequest } from 'types';
 import * as jwt from 'jsonwebtoken';

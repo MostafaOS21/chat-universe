@@ -1,5 +1,5 @@
-import React from "react";
 import SearchUser from "./SearchUser";
+import AllChats from "./AllChats";
 
 export default function ConversationsList() {
   return (
@@ -8,6 +8,8 @@ export default function ConversationsList() {
       className="transition-transform duration-700 ease-in-out "
     >
       <SearchUser />
+
+      <AllChats />
     </div>
   );
 }

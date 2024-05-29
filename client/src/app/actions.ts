@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, signIn, signOut as logOut } from "@/auth";
-import { ApiError } from "@/lib/api-error";
+import { api } from "@/features/api";
 import * as jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
@@ -39,7 +39,8 @@ export const verifyAccessToken = async (token: string) => {
 
   jwt.verify(token, `${process.env.ACCESS_SECRET}`, (err) => {
     if (err) {
-      return (result = null);
+      result = null;
+      return;
     }
 
     result = true;
@@ -61,4 +62,11 @@ export const logIn = async ({
 export const signOut = async () => {
   cookies().delete("Authorization");
   await logOut();
+};
+
+// Get chat friend profile
+export const getChatFriendProfile = async (friendId: string) => {
+  try {
+    const res = await api.get(``);
+  } catch (error) {}
 };

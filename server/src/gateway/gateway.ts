@@ -34,10 +34,6 @@ export class ChatUniverseGateway implements OnModuleInit {
             user.save();
           }
 
-          // Emit user status
-          console.log('Emitting user status', { userId, status });
-          this.server.emit('userStatus', { userId, status });
-
           // listen for disconnect
           socket.on('disconnect', async () => {
             const user = await this.userModel.findById(userId);
@@ -57,4 +53,8 @@ export class ChatUniverseGateway implements OnModuleInit {
       );
     });
   }
+
+
+  
+
 }

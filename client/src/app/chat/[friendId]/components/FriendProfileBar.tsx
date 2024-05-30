@@ -3,29 +3,37 @@ import { useGetChatFriendProfileQuery } from "@/lib/redux/services/chat/chatServ
 import { useParams } from "next/navigation";
 import { MessageCircleMore } from "lucide-react";
 import { OnlineBadge } from "@/components/ui/online-badge";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "@/socket";
 import { OfflineBadge } from "@/components/ui/offline-badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserStatus } from "../../../../../types/user.d";
 
 export default function FriendProfileBar() {
   const { friendId } = useParams();
   const { data: friendProfile, isLoading: isGettingFriendProfile } =
     useGetChatFriendProfileQuery(friendId as string);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    console.log("hey");
     socket.on(
-      "userStatus",
-      ({ userId, status }: { userId: string; status: string }) => {
-        console.log({ userId, status });
+      "userStatusUpdated",
+      ({ userId, status }: { userId: string; status: UserStatus }) => {
+        if (userId === friendId) {
+          setIsActive(status === UserStatus.ACTIVE);
+        }
       }
     );
 
-    // return () => {
-    //   socket.off("userStatus");
-    // };
+    // Cleanup
+    return () => {
+      socket.off("userStatus");
+    };
   }, []);
+
+  useEffect(() => {
+    setIsActive(friendProfile?.data?.status === UserStatus.ACTIVE);
+  }, [friendProfile?.data?.status]);
 
   return (
     <div className="px-5 pb-4 flex flex-col gap-2">
@@ -38,7 +46,7 @@ export default function FriendProfileBar() {
         <MessageCircleMore size={20} />
       </div>
 
-      <OfflineBadge />
+      {isActive ? <OnlineBadge /> : <OfflineBadge />}
     </div>
   );
 }

@@ -12,11 +12,18 @@ export default function ProfileBarContent() {
   const user = session?.data?.user;
 
   useEffect(() => {
-    // Emit user status
-    socket.emit("updateUserStatus", {
-      userId: user?.id,
-      status: UserStatus.ACTIVE,
-    });
+    if (user?.id) {
+      // Emit user status
+      socket.emit("updateUserStatus", {
+        userId: user?.id,
+        status: UserStatus.ACTIVE,
+      });
+
+      socket.emit("userStatus", {
+        userId: user?.id,
+        status: UserStatus.ACTIVE,
+      });
+    }
 
     // Emit user status on disconnect
     socket.on("disconnect", () => {
@@ -28,7 +35,6 @@ export default function ProfileBarContent() {
 
     // Cleanup
     return () => {
-      socket.off("userStatus");
       socket.off("updateUserStatus");
     };
   }, [user]);

@@ -1,6 +1,7 @@
-import { Body, OnModuleInit } from '@nestjs/common';
+import { OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -32,6 +33,14 @@ export class ChatUniverseGateway implements OnModuleInit {
           if (user) {
             user.status = status;
             user.save();
+
+            console.log(`Activating user ${userId}`);
+
+            // Emit user status
+            this.server.emit('userStatusUpdated', {
+              userId,
+              status,
+            });
           }
 
           // listen for disconnect
@@ -42,8 +51,10 @@ export class ChatUniverseGateway implements OnModuleInit {
               user.status = UserStatus.INACTIVE;
               user.save();
 
+              console.log(`Deactivating user ${userId}`);
+
               // Emit user status
-              this.server.emit('userStatus', {
+              this.server.emit('userStatusUpdated', {
                 userId: user._id,
                 status: UserStatus.INACTIVE,
               });
@@ -53,8 +64,4 @@ export class ChatUniverseGateway implements OnModuleInit {
       );
     });
   }
-
-
-  
-
 }

@@ -52,7 +52,7 @@ export default function Aside() {
         </Link>
       </Button>
 
-      <menu className={`w-full h-full bg-background`} aria-expanded={true}>
+      <menu className={`w-fit h-full bg-background`} aria-expanded={true}>
         {PROFILE_ROUTES.map((route) => (
           <li key={route.label}>
             <Button

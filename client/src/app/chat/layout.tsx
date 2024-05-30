@@ -17,7 +17,7 @@ export default async function ChatLayout({
   }
 
   return (
-    <section className="grid grid-cols-[300px_2.2px_1fr_2.2px_300px] py-0 px-5">
+    <section className="grid grid-cols-[330px_2.2px_1fr_2.2px_320px] py-0 px-3">
       {/* Avatar and chats */}
       <aside className="py-5 px-2 relative overflow-hidden">
         <ProfileBar />

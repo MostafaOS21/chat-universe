@@ -6,25 +6,28 @@ import { OnlineBadge } from "@/components/ui/online-badge";
 import { useEffect } from "react";
 import { socket } from "@/socket";
 import { OfflineBadge } from "@/components/ui/offline-badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function FriendProfileBar() {
   const { friendId } = useParams();
-  const { data: friendProfile } = useGetChatFriendProfileQuery(
-    friendId as string
-  );
+  const { data: friendProfile, isLoading: isGettingFriendProfile } =
+    useGetChatFriendProfileQuery(friendId as string);
 
   useEffect(() => {
     socket.on;
   }, []);
 
   return (
-    <div className="px-5 py-4">
+    <div className="px-5 pb-4 flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <p>{friendProfile?.data?.name}</p>
+        {isGettingFriendProfile ? (
+          <Skeleton className="h-6 w-40" />
+        ) : (
+          <p>{friendProfile?.data?.name}</p>
+        )}
         <MessageCircleMore size={20} />
       </div>
 
-      {/* <OnlineBadge /> */}
       <OfflineBadge />
     </div>
   );

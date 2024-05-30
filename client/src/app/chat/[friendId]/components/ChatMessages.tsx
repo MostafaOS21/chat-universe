@@ -16,13 +16,10 @@ export default function ChatMessages() {
   const { data: chatMessages } = useGetChatQuery(friendId as string);
 
   return (
-    <div className="h-[95vh] w-full flex flex-col">
-      <FriendProfileBar />
-      <Separator />
-
-      <div className="flex flex-col flex-1 px-5">
+    <>
+      <div className="flex flex-col flex-1 px-8">
         <div className="flex-1">messages</div>
-        <div className="w-full p-1 flex items-center bg-input rounded-md border focus-within:border-primary/30">
+        <div className="w-full flex items-center bg-input rounded-md border focus-within:border-primary/30">
           <Input
             placeholder="Type Something..."
             className="!ring-0 !ring-offset-0 border-0 bg-transparent"
@@ -33,6 +30,6 @@ export default function ChatMessages() {
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

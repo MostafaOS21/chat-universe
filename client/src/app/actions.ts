@@ -64,9 +64,8 @@ export const signOut = async () => {
   await logOut();
 };
 
-// Get chat friend profile
-export const getChatFriendProfile = async (friendId: string) => {
-  try {
-    const res = await api.get(``);
-  } catch (error) {}
+// Helpers
+export const getAuthorization = async () => {
+  const token = cookies().get("Authorization");
+  return token?.value;
 };

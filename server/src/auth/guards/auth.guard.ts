@@ -27,7 +27,7 @@ export class AuthGuard implements CanActivate {
     try {
       this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
     } catch (error) {
-      response.clearCookie('authorization');
+      response.clearCookie('Authorization');
       throw new UnauthorizedException('session expired');
     }
 

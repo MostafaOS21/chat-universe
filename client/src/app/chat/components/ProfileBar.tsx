@@ -56,7 +56,6 @@ export default function ProfileBar() {
   };
 
   // Handle sign out
-  // Handle sign out
   const handleSignOut = async () => {
     await signOutHandler();
     router.push("/");
@@ -82,7 +81,7 @@ export default function ProfileBar() {
       </Button>
 
       <menu
-        className={`absolute w-full h-full bg-background transition-transform duration-700 ease-in-out -translate-x-[450px]`}
+        className={`w-[calc(100%-8px)] absolute h-full bg-background transition-transform duration-700 ease-in-out -translate-x-[450px]`}
         ref={extraMenuRef}
         aria-expanded={false}
       >

@@ -6,12 +6,10 @@ import { socket } from "@/socket";
 import { useSession } from "next-auth/react";
 import React, { useEffect } from "react";
 import { UserStatus } from "../../../../types/user.d";
-import { OfflineBadge } from "@/components/ui/offline-badge";
 
 export default function ProfileBarContent() {
   const session = useSession();
   const user = session?.data?.user;
-  const [isActive, setIsActive] = React.useState(false);
 
   useEffect(() => {
     // Emit user status
@@ -28,21 +26,12 @@ export default function ProfileBarContent() {
       });
     });
 
-    // Listen for user status
-    socket.on("userStatus", (data: { userId: string; status: UserStatus }) => {
-      if (data.userId === user?.id) {
-        setIsActive(data.status === UserStatus.ACTIVE);
-      }
-    });
-
     // Cleanup
     return () => {
       socket.off("userStatus");
       socket.off("updateUserStatus");
     };
   }, [user]);
-
-  console.log({ isActive });
 
   return (
     <div className="flex items-center gap-3">
@@ -52,7 +41,7 @@ export default function ProfileBarContent() {
 
       <div>
         <h4>{user?.name || ""}</h4>
-        {isActive ? <OnlineBadge /> : <OfflineBadge />}
+        <OnlineBadge />
       </div>
     </div>
   );

@@ -37,8 +37,6 @@ export class ChatService {
       }
     });
 
-    console.log(friends);
-
     return {
       message: 'Latest chats fetched successfully',
       data: friends,

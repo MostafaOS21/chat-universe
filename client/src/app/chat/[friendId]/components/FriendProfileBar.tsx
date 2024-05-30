@@ -14,7 +14,17 @@ export default function FriendProfileBar() {
     useGetChatFriendProfileQuery(friendId as string);
 
   useEffect(() => {
-    socket.on;
+    console.log("hey");
+    socket.on(
+      "userStatus",
+      ({ userId, status }: { userId: string; status: string }) => {
+        console.log({ userId, status });
+      }
+    );
+
+    // return () => {
+    //   socket.off("userStatus");
+    // };
   }, []);
 
   return (

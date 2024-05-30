@@ -35,6 +35,7 @@ export class ChatUniverseGateway implements OnModuleInit {
           }
 
           // Emit user status
+          console.log('Emitting user status', { userId, status });
           this.server.emit('userStatus', { userId, status });
 
           // listen for disconnect
@@ -56,19 +57,4 @@ export class ChatUniverseGateway implements OnModuleInit {
       );
     });
   }
-
-  // User is online method
-  // @SubscribeMessage('updateUserStatus')
-  // async handleUserOnline(@Body() data: { userId: string; status: UserStatus }) {
-  //   const { userId, status } = data;
-  //   const user = await this.userModel.findById(userId);
-
-  //   if (user) {
-  //     user.status = status;
-  //     user.save();
-  //   }
-
-  //   // Emit user status
-  //   this.server.emit('userStatus', { userId, status });
-  // }
 }

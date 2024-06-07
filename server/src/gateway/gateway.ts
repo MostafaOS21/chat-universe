@@ -9,11 +9,14 @@ import {
 import { Model } from 'mongoose';
 import { Server } from 'socket.io';
 import { User, UserStatus } from 'src/auth/entities/auth.entity';
+import { TextMessagesService } from './text-messages.service';
+import { CreateTextMessageDto } from './dto/create-text-message';
 
 @WebSocketGateway(8001, { cors: true })
 export class ChatUniverseGateway implements OnModuleInit {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    private readonly textMessagesService: TextMessagesService,
   ) {}
 
   // Server instance
@@ -63,5 +66,16 @@ export class ChatUniverseGateway implements OnModuleInit {
         },
       );
     });
+  }
+
+  // Send message
+  @SubscribeMessage('sendMessage')
+  async sendMessage(@MessageBody() data: CreateTextMessageDto) {
+    try {
+      const message = this.textMessagesService.handleSendMessage(data);
+      this.server.emit('receiveMessage', message);
+    } catch (error) {
+      this.server.emit('receiveMessageError', { ...data, status: 'error' });
+    }
   }
 }

@@ -36,7 +36,7 @@ export default function SingleChatFriend({ friend }: { friend: Friend }) {
   return (
     <Link
       href={`chat/${friend._id.toString()}`}
-      className="flex  gap-3 items-center hover:bg-gray-100 p-3 rounded-lg"
+      className="flex  gap-3 items-center hover:bg-input/75 hover:dark:bg-input/75 p-3 rounded-lg"
       key={friend._id.toString()}
     >
       <Avatar className="w-12 h-12 relative overflow-visible" asChild>

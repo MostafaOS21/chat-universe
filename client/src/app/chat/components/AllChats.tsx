@@ -1,18 +1,12 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/components/ui/use-toast";
 import { selectFriends } from "@/lib/redux/features/friends/friendsSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
-import { useGetLatestChatsQuery } from "@/lib/redux/services/chat/chatService";
 import FriendsChatList from "./FriendsChatList";
 
 export default function AllChats() {
-  const { isLoading: isGettingFriends } = useGetLatestChatsQuery({});
-  const { toast } = useToast();
   const friends = useAppSelector(selectFriends);
-
-  let content;
 
   return (
     <div className="flex flex-col gap-4 mt-6">

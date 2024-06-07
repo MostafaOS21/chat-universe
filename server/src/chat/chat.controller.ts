@@ -11,6 +11,8 @@ import { AuthGuard } from 'src/auth/guards/auth.guard';
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
+  // TODO: Add decorators + Enhance them everywhere
+
   @Get('latest')
   @GetLatestChatsApiDecorator()
   getLatestChats(@Req() req: userRequest) {

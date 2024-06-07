@@ -38,3 +38,14 @@ export interface IUserButtonsProps {
     // setOptimisticUsers: Dispatch<SetStateAction<IRequestFriend[]>>;
   };
 }
+
+// Message Interface
+export interface IMessage {
+  _id: string;
+  sender: string;
+  receiver: string;
+  message: string;
+  createdAt: string;
+  type: "text" | "image";
+  status: "success" | "pending" | "failed";
+}

@@ -1,4 +1,4 @@
-import { OnModuleInit } from '@nestjs/common';
+import { Logger, OnModuleInit, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   MessageBody,
@@ -7,12 +7,15 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Model } from 'mongoose';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { User, UserStatus } from 'src/auth/entities/auth.entity';
 import { TextMessagesService } from './text-messages.service';
 import { CreateTextMessageDto } from './dto/create-text-message';
+import { GatewayGuard } from 'src/auth/guards/gateway.guard';
 
-@WebSocketGateway(8001, { cors: true })
+@WebSocketGateway(8001, {
+  cors: { credentials: true, origin: 'http://localhost:3000', methods: '*' },
+})
 export class ChatUniverseGateway implements OnModuleInit {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
@@ -71,11 +74,14 @@ export class ChatUniverseGateway implements OnModuleInit {
   // Send message
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() data: CreateTextMessageDto) {
-    try {
-      const message = this.textMessagesService.handleSendMessage(data);
+    const message = await this.textMessagesService.handleSendMessage(data);
+
+    console.log(message);
+
+    if (message.status === 'error') {
+      this.server.emit('receiveMessage:Error', message);
+    } else {
       this.server.emit('receiveMessage', message);
-    } catch (error) {
-      this.server.emit('receiveMessageError', { ...data, status: 'error' });
     }
   }
 }

@@ -5,9 +5,10 @@ export interface ApiResponse<T = undefined> {
 
 export type FriendShipStatus = "pending" | "accepted" | "rejected" | null;
 
-export interface IRequestFriend extends IUser {
+export interface IRequestFriend extends Omit<IUser, "status"> {
   isSender: boolean;
   isRejectedOne?: boolean;
+  status: FriendShipStatus;
 }
 
 type SenderOrReceiver = IRequestPopulated;
@@ -47,5 +48,5 @@ export interface IMessage {
   message: string;
   createdAt: string;
   type: "text" | "image";
-  status: "success" | "pending" | "failed";
+  status: "success" | "pending" | "error";
 }

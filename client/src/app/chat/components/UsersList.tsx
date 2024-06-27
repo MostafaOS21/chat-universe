@@ -1,17 +1,13 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
-import { api } from "@/features/api";
 import { ApiError } from "@/lib/api-error";
-import { ApiResponse, IRequestFriend } from "@/lib/interfaces";
+import { IRequestFriend } from "@/lib/interfaces";
 import { getAvatarUrl, sliceString } from "@/lib/utils";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
-import { useEffect, useState, useOptimistic, useRef } from "react";
-import { UserPlus, UserRoundX, UserRoundCheck, UserCheck } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 import { useLazyGetSearchUsersQuery } from "@/lib/redux/services/users/usersService";
-import { buttonStyles, iconSize } from "@/lib/constants";
 import AcceptReceivedRequest from "@/components/shared/action-buttons/accept-received-request";
 import SendRequestButton from "@/components/shared/action-buttons/send-request-button";
 import CancelSentRequestButton from "@/components/shared/action-buttons/cancel-sent-request-button";
@@ -22,6 +18,82 @@ import {
 } from "@/lib/redux/features/search-users/searchUsersSlice";
 import FriendButton from "@/components/shared/action-buttons/friend-button";
 import RejectReceivedRequest from "@/components/shared/action-buttons/reject-received-request";
+
+export default function UsersList({ search }: { search: string }) {
+  const { toast } = useToast();
+  const usersListRef = useRef<HTMLDivElement>(null);
+  const { page, setPage } = useInfiniteScroll({
+    refTarget: usersListRef,
+    currentPage: 1,
+  });
+  const [hasMore, setHasMore] = useState(true);
+  // RTK Query method
+  const [getSearchUsers, { isLoading: isGettingUsers }] =
+    useLazyGetSearchUsersQuery();
+  const users = useAppSelector(selectUsers);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        dispatch(emptySearchUsers());
+        setPage(1);
+        await getSearchUsers({ search, page: 1 });
+      } catch (error) {
+        toast({
+          description: ApiError.generate(error).message,
+          variant: "destructive",
+        });
+        setHasMore(false);
+      }
+    };
+
+    if (search) {
+      fetchUsers();
+    }
+
+    setPage(0);
+  }, [search]);
+
+  useEffect(() => {
+    const fetchMoreUsers = async () => {
+      try {
+        const { data } = await getSearchUsers({ search, page });
+      } catch (error) {
+        toast({
+          description: ApiError.generate(error).message,
+          variant: "destructive",
+        });
+        setHasMore(false);
+      }
+    };
+
+    if (page > 1 && search) {
+      fetchMoreUsers();
+    }
+  }, [page]);
+
+  let content;
+
+  if ((users?.length === 0 || !users) && !isGettingUsers) {
+    content = <p className="text-center text-gray-500">No users found</p>;
+  } else {
+    content = (
+      <>
+        {users?.map((user, i) => (
+          <UserItem key={i} user={user} />
+        ))}
+        {hasMore ? <SkeletonUser /> : null}
+      </>
+    );
+  }
+
+  return (
+    <div className="h-[300px] overflow-y-auto" ref={usersListRef}>
+      {content}
+    </div>
+  );
+}
 
 const SkeletonUser = () => {
   return (
@@ -132,79 +204,3 @@ const UserItem = ({ user }: { user: IRequestFriend }) => {
     </div>
   );
 };
-
-export default function UsersList({ search }: { search: string }) {
-  const { toast } = useToast();
-  const usersListRef = useRef<HTMLDivElement>(null);
-  const { page, setPage } = useInfiniteScroll({
-    refTarget: usersListRef,
-    currentPage: 1,
-  });
-  const [hasMore, setHasMore] = useState(true);
-  // RTK Query method
-  const [getSearchUsers, { isLoading: isGettingUsers }] =
-    useLazyGetSearchUsersQuery();
-  const users = useAppSelector(selectUsers);
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        dispatch(emptySearchUsers());
-        setPage(1);
-        await getSearchUsers({ search, page: 1 });
-      } catch (error) {
-        toast({
-          description: ApiError.generate(error).message,
-          variant: "destructive",
-        });
-        setHasMore(false);
-      }
-    };
-
-    if (search) {
-      fetchUsers();
-    }
-
-    setPage(0);
-  }, [search]);
-
-  useEffect(() => {
-    const fetchMoreUsers = async () => {
-      try {
-        const { data } = await getSearchUsers({ search, page });
-      } catch (error) {
-        toast({
-          description: ApiError.generate(error).message,
-          variant: "destructive",
-        });
-        setHasMore(false);
-      }
-    };
-
-    if (page > 1 && search) {
-      fetchMoreUsers();
-    }
-  }, [page]);
-
-  let content;
-
-  if ((users?.length === 0 || !users) && !isGettingUsers) {
-    content = <p className="text-center text-gray-500">No users found</p>;
-  } else {
-    content = (
-      <>
-        {users?.map((user, i) => (
-          <UserItem key={i} user={user} />
-        ))}
-        {hasMore ? <SkeletonUser /> : null}
-      </>
-    );
-  }
-
-  return (
-    <div className="h-[300px] overflow-y-auto" ref={usersListRef}>
-      {content}
-    </div>
-  );
-}
